@@ -1,0 +1,761 @@
+swagger: '2.0'
+info:
+  title: Soundshare API
+  description: Second assigment of Services Engineering Course, University of Coimbra
+  version: "1.0.0"
+# the domain of the service
+host: api.soundshare.com
+# array of all schemes that your API supports
+schemes:
+  - http
+# will be prefixed to all paths
+basePath: /v1
+produces:
+  - application/json
+securityDefinitions:
+  basicAuth:
+    type: basic
+paths:
+  /users:
+    post:
+      summary: Create a new user
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: firstName
+          in: formData
+          description: User's first name
+          required: true
+          type: string
+        - name: lastName
+          in: formData
+          description: User's last name
+          required: true
+          type: string
+        - name: email
+          in: formData
+          description: User's email
+          required: true
+          type: string
+        - name: password
+          in: formData
+          description: User's password
+          required: true
+          type: string
+          format: password
+      tags:
+        - Users
+      responses:
+        201:
+          description: User successfully created
+          schema:
+            $ref: '#/definitions/User'
+        400:
+          description: Bad request
+          schema:
+            $ref: '#/definitions/User'
+        409:
+          description: Conflict. An user with this email already exists
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /users/self:
+    get:
+      summary: Get information about current user
+      tags:
+        - Users
+      security:
+        - basicAuth: []
+      responses:
+        200:
+          description: Information about current user
+          schema:
+            $ref: '#/definitions/User'
+        401:
+          description: Unauthorized. Please fill up the 'Authorization' header
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      summary: Delete current user
+      description: |
+        Delete current user. Personal data and playlists of this user will be removed as well.
+      tags:
+        - Users
+      security:
+        - basicAuth: []
+      responses:
+        204:
+          description: User successfully removed
+        401:
+          description: Unauthorized. Please fill up the 'Authorization' header
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /users/self/songs:
+    get:
+      summary: List all songs owned by the user
+      description: |
+        List all songs owned by the user. The response includes a list of songs. Optional query parameters could be fill up to get only the songs that match to some criteria.
+      parameters:
+        - name: offset
+          in: query
+          description: Position in the list of the first record to retrieve (0 is the minimum value)
+          required: false
+          type: integer
+        - name: limit
+          in: query
+          description: Get n records from the record at the offset postition (inclusive) (1 is the minimum value)
+          required: false
+          type: integer
+        - name: title
+          in: query
+          description: Title of the song
+          required: false
+          type: string
+        - name: artist
+          in: query
+          description: Artist of the song
+          required: false
+          type: string
+        - name: album
+          in: query
+          description: Album of the song
+          required: false
+          type: string
+        - name: releaseYear
+          in: query
+          description: Release year of the song
+          required: false
+          type: integer
+      tags:
+        - Users
+        - Songs
+      security:
+        - basicAuth: []
+      responses:
+        200:
+          description: List of songs from the user
+          schema:
+            $ref: '#/definitions/Song'
+        401:
+          description: Unauthorized. Please fill up the 'Authorization' header
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+    post:
+      summary: Upload a song
+      consumes:
+        - mulitpart/form-data
+      parameters:
+        - name: title
+          in: formData
+          description: Title of the song
+          required: true
+          type: string
+        - name: artist
+          in: formData
+          description: Artist of the song
+          required: true
+          type: string
+        - name: album
+          in: formData
+          description: Album of the song
+          required: true
+          type: string
+        - name: releaseYear
+          in: formData
+          description: Release year of the song
+          required: true
+          type: integer
+        - name: file
+          in: formData
+          description: The file (song) to upload
+          required: true
+          type: file
+      tags:
+        - Users
+        - Songs
+      security:
+        - basicAuth: []
+      responses:
+        201:
+          description: Song successfully added
+          schema:
+            $ref: '#/definitions/Song'
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized. Please fill up the 'Authorization' header
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      summary: Delete all user's songs
+      tags:
+        - Users
+        - Songs
+      security:
+        - basicAuth: []
+      responses:
+        204:
+          description: All songs from the user successfully deleted
+        401:
+          description: Unauthorized. Please fill up the 'Authorization' header
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /users/self/playlists:
+    get:
+      summary: List all user's playlists
+      tags:
+        - Users
+        - Playlists
+      security:
+        - basicAuth: []
+      parameters:
+        - name: offset
+          in: query
+          description: Position in the list of the first record to retrieve (0 is the minimum value)
+          required: false
+          type: integer
+        - name: limit
+          in: query
+          description: Get n records from the record at the offset postition (inclusive) (1 is the minimum value)
+          required: false
+          type: integer
+      responses:
+        200:
+          description: List of all user's playlists
+          schema:
+            $ref: '#/definitions/Playlist'
+        401:
+          description: Unauthorized. Please fill up the 'Authorization' header
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /songs:
+    get:
+      summary: List all songs or search by any property
+      description: |
+        List all songs. Optional query parameters could be fill up to get only the songs that match to some criteria.
+      parameters:
+        - name: offset
+          in: query
+          description: Position in the list of the first record to retrieve (0 is the minimum value)
+          required: false
+          type: integer
+        - name: limit
+          in: query
+          description: Get n records from the record at the offset postition (inclusive) (1 is the minimum value)
+          required: false
+          type: integer
+        - name: title
+          in: query
+          description: Title of the song
+          required: false
+          type: string
+        - name: artist
+          in: query
+          description: Artist of the song
+          required: false
+          type: string
+        - name: album
+          in: query
+          description: Album of the song
+          required: false
+          type: string
+        - name: releaseYear
+          in: query
+          description: Release year of the song
+          required: false
+          type: integer
+      tags:
+        - Songs
+      security:
+        - basicAuth: []
+      responses:
+        200:
+          description: List of songs
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Song'
+        401:
+          description: Unauthorized. Please fill up the 'Authorization' header
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /songs/{songId}:
+    get:
+      summary: Get information about this song
+      parameters:
+        - name: songId
+          in: path
+          description: Id of the song to be retrieved
+          required: true
+          type: integer
+      tags:
+        - Songs
+      security:
+        - basicAuth: []
+      responses:
+        200:
+          description: Information about this song
+          schema:
+            $ref: '#/definitions/Song'
+        401:
+          description: Unauthorized. Please fill up the 'Authorization' header
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: Song not found
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      summary: Update an existing song
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: songId
+          in: path
+          description: Id of the song to be retrieved
+          required: true
+          type: integer
+        - name: title
+          in: formData
+          description: Title of the song
+          required: false
+          type: string
+        - name: artist
+          in: formData
+          description: Artist of the song
+          required: false
+          type: string
+        - name: album
+          in: formData
+          description: Album of the song
+          required: false
+          type: string
+        - name: releaseYear
+          in: formData
+          description: Release year of the song
+          required: false
+          type: integer
+      tags:
+        - Songs
+      security:
+        - basicAuth: []
+      responses:
+        200:
+          description: Song successfully updated
+          schema:
+            $ref: '#/definitions/Song'
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized. Please fill up the 'Authorization' header
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden. You have to be authenticated as the owner of this song to update it.
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      summary: Delete all user's songs
+      parameters:
+        - name: songId
+          in: path
+          description: Id of the song to be retrieved
+          required: true
+          type: integer
+      tags:
+        - Songs
+      security:
+        - basicAuth: []
+      responses:
+        204:
+          description: Songs successfully deleted
+        401:
+          description: Unauthorized. Please fill up the 'Authorization' header
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden. You have to be authenticated as the owner of this song to delete it.
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /playlists:
+    post:
+      summary: Add a playlist
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: name
+          in: formData
+          description: Playlist's name
+          required: true
+          type: string
+      tags:
+        - Users
+        - Playlists
+      security:
+        - basicAuth: []
+      responses:
+        204:
+          description: Playlist successfully created
+          schema:
+            $ref: '#/definitions/Playlist'
+        401:
+          description: Unauthorized. Please fill up the 'Authorization' header
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error' 
+  /playlists/{playlistId}:
+    get:
+      summary: Get information about this playlist
+      parameters:
+        - name: playlistId
+          in: path
+          description: Id of the playlist to be retrieved
+          required: true
+          type: integer
+      tags:
+        - Playlists
+      security:
+        - basicAuth: []
+      responses:
+        200:
+          description: Information about this playlist
+          schema:
+            $ref: '#/definitions/Playlist'
+        401:
+          description: Unauthorized. Please fill up the 'Authorization' header
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden. You have to be authenticated as the owner of this playlist to be able to view it.
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: Playlist not found
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      summary: Edit this playlist
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: playlistId
+          in: path
+          description: Id of the playlist to be edited
+          required: true
+          type: integer
+        - name: name
+          in: formData
+          description: New playlist's name
+          required: true
+          type: string
+      tags:
+        - Playlists
+      security:
+        - basicAuth: []
+      responses:
+        200:
+          description: Playlist successfully edited
+          schema:
+            $ref: '#/definitions/Playlist'
+        401:
+          description: Unauthorized. Please fill up the 'Authorization' header
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden. You have to be authenticated as the owner of this playlist to update it.
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: Playlist not found
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      summary: Delete this playlist
+      parameters:
+        - name: playlistId
+          in: path
+          description: Id of the playlist to be edited
+          required: true
+          type: integer
+      tags:
+        - Playlists
+      security:
+        - basicAuth: []
+      responses:
+        204:
+          description: Playlist successfully deleted
+        401:
+          description: Unauthorized. Please fill up the 'Authorization' header
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden. You have to be authenticated as the owner of this playlist to delete it.
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: Playlist not found
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /playlists/{playlistId}/songs:
+    get:
+      summary: List all songs in this playlist
+      description: |
+        List all songs in this playlist.
+      parameters:
+        - name: playlistId
+          in: path
+          description: Id of the playlist to be edited
+          required: true
+          type: integer
+        - name: offset
+          in: query
+          description: Position in the list of the first record to retrieve (0 is the minimum value)
+          required: false
+          type: integer
+        - name: limit
+          in: query
+          description: Get n records from the record at the offset postition (inclusive) (1 is the minimum value)
+          required: false
+          type: integer
+      tags:
+        - Playlists
+        - Songs
+      security:
+        - basicAuth: []
+      responses:
+        200:
+          description: List of all songs in this playlist
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Song'
+        401:
+          description: Unauthorized. Please fill up the 'Authorization' header
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden. You have to be authenticated as the owner of this playlist to be able to get its songs.
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: Playlist not found
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /playlists/{playlistId}/songs/{songId}:
+    post:
+      summary: Add a given song to this playlist
+      parameters:
+        - name: playlistId
+          in: path
+          description: Id of the playlist
+          required: true
+          type: integer
+        - name: songId
+          in: path
+          description: Id of the song to be added
+          required: true
+          type: integer
+      tags:
+        - Playlists
+        - Songs
+      security:
+        - basicAuth: []
+      responses:
+        200:
+          description: Song successfully added to this playlist
+          schema:
+            $ref: '#/definitions/Song'
+        401:
+          description: Unauthorized. Please fill up the 'Authorization' header
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden. You have to be authenticated as the owner of this playlist to update it.
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: Playlist or song not found
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      summary: Remove a given song from this playlist
+      parameters:
+        - name: playlistId
+          in: path
+          description: Id of the playlist
+          required: true
+          type: integer
+        - name: songId
+          in: path
+          description: Id of the song to be removed from this playlist
+          required: true
+          type: integer
+      tags:
+        - Playlists
+        - Songs
+      security:
+        - basicAuth: []
+      responses:
+        204:
+          description: Song successfully removed from this playlist
+          schema:
+            $ref: '#/definitions/Song'
+        401:
+          description: Unauthorized. Please fill up the 'Authorization' header
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden. You have to be authenticated as the owner of this playlist to update it.
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: Playlist or song not found
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+definitions:
+  User:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: Unique identifier of the user.
+        example: 1234
+      firstName:
+        type: string
+        description: First name of the user.
+        example: John
+      lastName:
+        type: string
+        description: Last name of the user.
+        example: Smith
+      email:
+        type: string
+        description: Email address of the user
+        example: john.smith@example.com
+  Song:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: Unique identifier of the song.
+        example: 1234
+      title:
+        type: string
+        description: Title of the song.
+        example: Let It Be
+      artist:
+        type: string
+        description: Artist who play the song.
+        example: The Beatles
+      album:
+        type: string
+        description: Name of the album.
+        example: Abbey Road
+      releaseYear:
+        type: integer
+        description: Release year of the song.
+        example: 1969
+      url:
+        type: string
+        description: Path to the song.
+        example: http://example.com/cdn/example.mp3
+  Playlist:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: Unique identifier of the playlist.
+        example: 1234
+      name:
+        type: string
+        description: Name of the playlist.
+        example: Workout
+      createdAt:
+        type: string
+        format: date
+        description: Creation date of the playlist.
+        example: 2017-03-14
+      size:
+        type: integer
+        description: Number of songs in the playlist.
+        example: 32
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      fields:
+        type: string
