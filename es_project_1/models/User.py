@@ -11,6 +11,7 @@ class User(Base):
     __tablename__ = "users"
     
     id = Column(Integer, Sequence("user_id_seq"), primary_key=True)
+    access_token = Column(String(40))
     first_name = Column(String(30))
     last_name = Column(String(30))
     email = Column(String(100))
