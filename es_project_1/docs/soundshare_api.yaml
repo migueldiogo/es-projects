@@ -46,14 +46,12 @@ paths:
       tags:
         - Users
       responses:
-        201:
+        204:
           description: User successfully created
-          schema:
-            $ref: '#/definitions/User'
         400:
           description: Bad request
           schema:
-            $ref: '#/definitions/User'
+            $ref: '#/definitions/Error' 
         409:
           description: Conflict. An user with this email already exists
           schema:
@@ -86,6 +84,14 @@ paths:
       summary: Delete current user
       description: |
         Delete current user. Personal data and playlists of this user will be removed as well.
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: password
+          in: formData
+          description: User's password for action confirmation
+          required: true
+          type: string
       tags:
         - Users
       security:
@@ -109,14 +115,16 @@ paths:
       parameters:
         - name: offset
           in: query
-          description: Position in the list of the first record to retrieve (0 is the minimum value)
+          description: Position in the list of the first record to retrieve
           required: false
           type: integer
+          minimum: 0
         - name: limit
           in: query
-          description: Get n records from the record at the offset postition (inclusive) (1 is the minimum value)
+          description: Get n records from the record at the offset postition (inclusive)
           required: false
           type: integer
+          minimum: 1
         - name: title
           in: query
           description: Title of the song
@@ -138,7 +146,6 @@ paths:
           required: false
           type: integer
       tags:
-        - Users
         - Songs
       security:
         - basicAuth: []
@@ -186,17 +193,20 @@ paths:
           required: true
           type: file
       tags:
-        - Users
         - Songs
       security:
         - basicAuth: []
       responses:
         201:
           description: Song successfully added
-          schema:
-            $ref: '#/definitions/Song'
+          headers:
+            Location:
+              type: string
+              description: URI of the song created
         400:
           description: Bad request
+          schema:
+            $ref: '#/definitions/Error' 
         401:
           description: Unauthorized. Please fill up the 'Authorization' header
           schema:
@@ -208,7 +218,6 @@ paths:
     delete:
       summary: Delete all user's songs
       tags:
-        - Users
         - Songs
       security:
         - basicAuth: []
@@ -227,21 +236,22 @@ paths:
     get:
       summary: List all user's playlists
       tags:
-        - Users
         - Playlists
       security:
         - basicAuth: []
       parameters:
         - name: offset
           in: query
-          description: Position in the list of the first record to retrieve (0 is the minimum value)
+          description: Position in the list of the first record to retrieve
           required: false
           type: integer
+          minimum: 0
         - name: limit
           in: query
-          description: Get n records from the record at the offset postition (inclusive) (1 is the minimum value)
+          description: Get n records from the record at the offset postition (inclusive)
           required: false
           type: integer
+          minimum: 1
       responses:
         200:
           description: List of all user's playlists
@@ -263,14 +273,16 @@ paths:
       parameters:
         - name: offset
           in: query
-          description: Position in the list of the first record to retrieve (0 is the minimum value)
+          description: Position in the list of the first record to retrieve
           required: false
           type: integer
+          minimum: 0
         - name: limit
           in: query
-          description: Get n records from the record at the offset postition (inclusive) (1 is the minimum value)
+          description: Get n records from the record at the offset postition (inclusive)
           required: false
           type: integer
+          minimum: 1
         - name: title
           in: query
           description: Title of the song
@@ -375,12 +387,12 @@ paths:
       security:
         - basicAuth: []
       responses:
-        200:
+        204:
           description: Song successfully updated
-          schema:
-            $ref: '#/definitions/Song'
         400:
           description: Bad request
+          schema:
+            $ref: '#/definitions/Error' 
         401:
           description: Unauthorized. Please fill up the 'Authorization' header
           schema:
@@ -432,15 +444,20 @@ paths:
           required: true
           type: string
       tags:
-        - Users
         - Playlists
       security:
         - basicAuth: []
       responses:
-        204:
+        201:
           description: Playlist successfully created
+          headers:
+            Location:
+              type: string
+              description: URI of the playlist created
+        400:
+          description: Bad request
           schema:
-            $ref: '#/definitions/Playlist'
+            $ref: '#/definitions/Error' 
         401:
           description: Unauthorized. Please fill up the 'Authorization' header
           schema:
@@ -503,10 +520,12 @@ paths:
       security:
         - basicAuth: []
       responses:
-        200:
+        204:
           description: Playlist successfully edited
+        400:
+          description: Bad request
           schema:
-            $ref: '#/definitions/Playlist'
+            $ref: '#/definitions/Error' 
         401:
           description: Unauthorized. Please fill up the 'Authorization' header
           schema:
@@ -567,14 +586,16 @@ paths:
           type: integer
         - name: offset
           in: query
-          description: Position in the list of the first record to retrieve (0 is the minimum value)
+          description: Position in the list of the first record to retrieve
           required: false
           type: integer
+          minimum: 0
         - name: limit
           in: query
-          description: Get n records from the record at the offset postition (inclusive) (1 is the minimum value)
+          description: Get n records from the record at the offset postition (inclusive)
           required: false
           type: integer
+          minimum: 1
       tags:
         - Playlists
         - Songs
@@ -623,10 +644,8 @@ paths:
       security:
         - basicAuth: []
       responses:
-        200:
+        204:
           description: Song successfully added to this playlist
-          schema:
-            $ref: '#/definitions/Song'
         401:
           description: Unauthorized. Please fill up the 'Authorization' header
           schema:
@@ -664,8 +683,6 @@ paths:
       responses:
         204:
           description: Song successfully removed from this playlist
-          schema:
-            $ref: '#/definitions/Song'
         401:
           description: Unauthorized. Please fill up the 'Authorization' header
           schema:
