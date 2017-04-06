@@ -3,6 +3,7 @@ from sqlalchemy.orm import sessionmaker
 
 from models.Song import Song
 from models.User import User
+from models.Playlist import Playlist
 
 if __name__ == '__main__':
     from sqlalchemy import create_engine
