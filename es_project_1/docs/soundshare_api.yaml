@@ -13,8 +13,10 @@ basePath: /v1
 produces:
   - application/json
 securityDefinitions:
-  basicAuth:
-    type: basic
+  tokenAuth:
+    type: apiKey
+    in: header
+    name: Authorization
 paths:
   /users:
     post:
@@ -66,7 +68,7 @@ paths:
       tags:
         - Users
       security:
-        - basicAuth: []
+        - tokenAuth: []
       responses:
         200:
           description: Information about current user
@@ -95,10 +97,46 @@ paths:
       tags:
         - Users
       security:
-        - basicAuth: []
+        - tokenAuth: []
       responses:
         204:
           description: User successfully removed
+        401:
+          description: Unauthorized. Please fill up the 'Authorization' header
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /users/self/token:
+    post:
+      summary: Get user's token
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: email
+          in: formData
+          description: User's email
+          required: true
+          type: string
+        - name: password
+          in: formData
+          description: User's password
+          required: true
+          type: string
+          format: password
+      tags:
+        - Users
+      responses:
+        200:
+          description: User's token
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+                description: User's token
         401:
           description: Unauthorized. Please fill up the 'Authorization' header
           schema:
@@ -148,7 +186,7 @@ paths:
       tags:
         - Songs
       security:
-        - basicAuth: []
+        - tokenAuth: []
       responses:
         200:
           description: List of songs from the user
@@ -195,7 +233,7 @@ paths:
       tags:
         - Songs
       security:
-        - basicAuth: []
+        - tokenAuth: []
       responses:
         201:
           description: Song successfully added
@@ -220,7 +258,7 @@ paths:
       tags:
         - Songs
       security:
-        - basicAuth: []
+        - tokenAuth: []
       responses:
         204:
           description: All songs from the user successfully deleted
@@ -238,7 +276,7 @@ paths:
       tags:
         - Playlists
       security:
-        - basicAuth: []
+        - tokenAuth: []
       parameters:
         - name: offset
           in: query
@@ -306,7 +344,7 @@ paths:
       tags:
         - Songs
       security:
-        - basicAuth: []
+        - tokenAuth: []
       responses:
         200:
           description: List of songs
@@ -334,7 +372,7 @@ paths:
       tags:
         - Songs
       security:
-        - basicAuth: []
+        - tokenAuth: []
       responses:
         200:
           description: Information about this song
@@ -385,7 +423,7 @@ paths:
       tags:
         - Songs
       security:
-        - basicAuth: []
+        - tokenAuth: []
       responses:
         204:
           description: Song successfully updated
@@ -416,7 +454,7 @@ paths:
       tags:
         - Songs
       security:
-        - basicAuth: []
+        - tokenAuth: []
       responses:
         204:
           description: Songs successfully deleted
@@ -446,7 +484,7 @@ paths:
       tags:
         - Playlists
       security:
-        - basicAuth: []
+        - tokenAuth: []
       responses:
         201:
           description: Playlist successfully created
@@ -478,7 +516,7 @@ paths:
       tags:
         - Playlists
       security:
-        - basicAuth: []
+        - tokenAuth: []
       responses:
         200:
           description: Information about this playlist
@@ -518,7 +556,7 @@ paths:
       tags:
         - Playlists
       security:
-        - basicAuth: []
+        - tokenAuth: []
       responses:
         204:
           description: Playlist successfully edited
@@ -553,7 +591,7 @@ paths:
       tags:
         - Playlists
       security:
-        - basicAuth: []
+        - tokenAuth: []
       responses:
         204:
           description: Playlist successfully deleted
@@ -600,7 +638,7 @@ paths:
         - Playlists
         - Songs
       security:
-        - basicAuth: []
+        - tokenAuth: []
       responses:
         200:
           description: List of all songs in this playlist
@@ -642,7 +680,7 @@ paths:
         - Playlists
         - Songs
       security:
-        - basicAuth: []
+        - tokenAuth: []
       responses:
         204:
           description: Song successfully added to this playlist
@@ -679,7 +717,7 @@ paths:
         - Playlists
         - Songs
       security:
-        - basicAuth: []
+        - tokenAuth: []
       responses:
         204:
           description: Song successfully removed from this playlist
