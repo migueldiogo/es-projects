@@ -23,6 +23,12 @@ class Song(Base):
     url = Column(String(300))
     playlists = relationship("Playlist", secondary = "playlist_song")
     
+    def __init__(self, title, artist, release_year, url):
+        self.title = title
+        self.artist = artist
+        self.release_year = release_year
+        self.url = url
+    
     def __repr__(self):
         return "<Song(id = '%i', title = '%s', artist = '%s', release_year = '%d', url = '%s')>"  \
                % (self.id, self.title, self.artist, self.release_year, self.url)

@@ -19,6 +19,11 @@ class Playlist(Base):
     user = relationship("User", back_populates="playlists")
     songs = relationship("Song", secondary = "playlist_song")
 
+    def __init__(self, name, created_at, user_id):
+        self.name = name
+        self.created_at = created_at
+        self.user_id = user_id
+        
     def __repr__(self):
         return "<Playlist(id = '%i', name = '%s', date = '%s', user_id = '%i', user_name = '%s')>"  \
                % (self.id, self.name, self.created_at, self.user_id, self.user.name)
