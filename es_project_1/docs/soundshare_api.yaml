@@ -200,76 +200,6 @@ paths:
           description: Unexpected error
           schema:
             $ref: '#/definitions/Error'
-    post:
-      summary: Upload a song
-      consumes:
-        - mulitpart/form-data
-      parameters:
-        - name: title
-          in: formData
-          description: Title of the song
-          required: true
-          type: string
-        - name: artist
-          in: formData
-          description: Artist of the song
-          required: true
-          type: string
-        - name: album
-          in: formData
-          description: Album of the song
-          required: true
-          type: string
-        - name: releaseYear
-          in: formData
-          description: Release year of the song
-          required: true
-          type: integer
-        - name: file
-          in: formData
-          description: The file (song) to upload
-          required: true
-          type: file
-      tags:
-        - Songs
-      security:
-        - tokenAuth: []
-      responses:
-        201:
-          description: Song successfully added
-          headers:
-            Location:
-              type: string
-              description: URI of the song created
-        400:
-          description: Bad request
-          schema:
-            $ref: '#/definitions/Error' 
-        401:
-          description: Unauthorized. Please fill up the 'Authorization' header
-          schema:
-            $ref: '#/definitions/Error'
-        default:
-          description: Unexpected error
-          schema:
-            $ref: '#/definitions/Error'
-    delete:
-      summary: Delete all user's songs
-      tags:
-        - Songs
-      security:
-        - tokenAuth: []
-      responses:
-        204:
-          description: All songs from the user successfully deleted
-        401:
-          description: Unauthorized. Please fill up the 'Authorization' header
-          schema:
-            $ref: '#/definitions/Error'
-        default:
-          description: Unexpected error
-          schema:
-            $ref: '#/definitions/Error'
   /users/self/playlists:
     get:
       summary: List all user's playlists
@@ -360,6 +290,59 @@ paths:
           description: Unexpected error
           schema:
             $ref: '#/definitions/Error'
+    post:
+      summary: Upload a song
+      consumes:
+        - mulitpart/form-data
+      parameters:
+        - name: title
+          in: formData
+          description: Title of the song
+          required: true
+          type: string
+        - name: artist
+          in: formData
+          description: Artist of the song
+          required: true
+          type: string
+        - name: album
+          in: formData
+          description: Album of the song
+          required: true
+          type: string
+        - name: releaseYear
+          in: formData
+          description: Release year of the song
+          required: true
+          type: integer
+        - name: file
+          in: formData
+          description: The file (song) to upload
+          required: true
+          type: file
+      tags:
+        - Songs
+      security:
+        - tokenAuth: []
+      responses:
+        201:
+          description: Song successfully added
+          headers:
+            Location:
+              type: string
+              description: URI of the song created
+        400:
+          description: Bad request
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized. Please fill up the 'Authorization' header
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
   /songs/{songId}:
     get:
       summary: Get information about this song
@@ -393,7 +376,7 @@ paths:
     put:
       summary: Update an existing song
       consumes:
-        - application/x-www-form-urlencoded
+        - multipart/form-data
       parameters:
         - name: songId
           in: path
@@ -420,6 +403,11 @@ paths:
           description: Release year of the song
           required: false
           type: integer
+        - name: file
+          in: formData
+          description: The file (song) to upload
+          required: true
+          type: file
       tags:
         - Songs
       security:
@@ -430,7 +418,7 @@ paths:
         400:
           description: Bad request
           schema:
-            $ref: '#/definitions/Error' 
+            $ref: '#/definitions/Error'
         401:
           description: Unauthorized. Please fill up the 'Authorization' header
           schema:
@@ -444,11 +432,11 @@ paths:
           schema:
             $ref: '#/definitions/Error'
     delete:
-      summary: Delete all user's songs
+      summary: Delete song
       parameters:
         - name: songId
           in: path
-          description: Id of the song to be retrieved
+          description: Id of the song
           required: true
           type: integer
       tags:
