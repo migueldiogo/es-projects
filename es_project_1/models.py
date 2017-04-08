@@ -22,8 +22,9 @@ class User(Base):
     password_hashed = Column(String(200))
     password_salt = Column(String(200))
     auth_token = Column(String(200))
-    playlists = relationship("Playlist", back_populates = "user")
-    
+    playlists = relationship("Playlist", back_populates = "user", cascade = "delete")
+    songs = relationship("Song", back_populates = "user")
+
     def __init__(self, first_name, last_name, email, password_hashed):
         self.first_name = first_name
         self.last_name = last_name
@@ -61,6 +62,7 @@ class Song(Base):
     id = Column(Integer, Sequence("song_id_seq"), primary_key = True)
     title = Column(String(100))
     artist = Column(String(80))
+    album = Column(String(80))
     release_year = Column(SmallInteger)
     url = Column(String(300))
     playlists = relationship("Playlist", secondary = "playlist_song")
@@ -68,12 +70,14 @@ class Song(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
     user = relationship("User", back_populates = "songs")
     
-    def __init__(self, title, artist, release_year, url):
+    def __init__(self, title, artist, album, release_year, url, user_id):
         self.title = title
         self.artist = artist
+        self.album = album
         self.release_year = release_year
         self.url = url
+        self.user_id = user_id
     
     def __repr__(self):
-        return "<Song(id = '%i', title = '%s', artist = '%s', release_year = '%d', url = '%s')>" \
-               % (self.id, self.title, self.artist, self.release_year, self.url)
+        return "<Song(id = '%i', title = '%s', album = '%s', artist = '%s', release_year = '%d', url = '%s')>" \
+               % (self.id, self.title, self.artist, self.artist, self.release_year, self.url)
