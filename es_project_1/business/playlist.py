@@ -83,6 +83,7 @@ def add_song_to_playlist(user_auth_token:str, song_id: int, playlist_id: int) ->
         raise NotFound
 
     playlist.songs.append(song)
+    playlist.size += 1
 
     return crud_playlist.update_playlist(playlist)
 
@@ -103,6 +104,7 @@ def remove_song_from_playlist(user_auth_token:str, song_id: int, playlist_id: in
         raise NotFound
     
     playlist.songs.remove(song)
+    playlist.size -= 1
     
     return crud_playlist.update_playlist(playlist)
 

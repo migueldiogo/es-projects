@@ -1,3 +1,4 @@
+import datetime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column
 from sqlalchemy import Date
@@ -41,7 +42,8 @@ class Playlist(Base):
     
     id = Column(Integer, Sequence("playlist_id_seq"), primary_key = True)
     name = Column(String(100))
-    created_at = Column(Date)
+    created_at = Column(Date, default = datetime.datetime.now())
+    size = Column(Integer, default=0)
     user_id = Column(Integer, ForeignKey('users.id'))
     user = relationship("User", back_populates = "playlists")
     songs = relationship("Song", secondary = "playlist_song")
