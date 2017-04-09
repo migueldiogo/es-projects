@@ -4,12 +4,12 @@ info:
   description: Second assigment of Services Engineering Course, University of Coimbra
   version: "1.0.0"
 # the domain of the service
-host: api.soundshare.com
+host: soundshare.com
 # array of all schemes that your API supports
 schemes:
   - http
 # will be prefixed to all paths
-basePath: /v1
+basePath: /api/v1
 produces:
   - application/json
 securityDefinitions:
@@ -53,7 +53,7 @@ paths:
         400:
           description: Bad request
           schema:
-            $ref: '#/definitions/Error' 
+            $ref: '#/definitions/Error'
         409:
           description: Conflict. An user with this email already exists
           schema:
@@ -109,7 +109,7 @@ paths:
           description: Unexpected error
           schema:
             $ref: '#/definitions/Error'
-  /users/self/token:
+  /users/self/tokens:
     post:
       summary: Get user's token
       consumes:
@@ -138,7 +138,7 @@ paths:
                 type: string
                 description: User's token
         401:
-          description: Unauthorized. Please fill up the 'Authorization' header
+          description: Unauthorized.
           schema:
             $ref: '#/definitions/Error'
         default:
@@ -261,16 +261,6 @@ paths:
           description: Artist of the song
           required: false
           type: string
-        - name: album
-          in: query
-          description: Album of the song
-          required: false
-          type: string
-        - name: releaseYear
-          in: query
-          description: Release year of the song
-          required: false
-          type: integer
       tags:
         - Songs
       security:
@@ -483,7 +473,7 @@ paths:
         400:
           description: Bad request
           schema:
-            $ref: '#/definitions/Error' 
+            $ref: '#/definitions/Error'
         401:
           description: Unauthorized. Please fill up the 'Authorization' header
           schema:
@@ -491,7 +481,7 @@ paths:
         default:
           description: Unexpected error
           schema:
-            $ref: '#/definitions/Error' 
+            $ref: '#/definitions/Error'
   /playlists/{playlistId}:
     get:
       summary: Get information about this playlist

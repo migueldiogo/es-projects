@@ -1,4 +1,6 @@
-from business import session
+from crud import session
+from sqlalchemy import exists
+
 from models import User
 
 
@@ -8,28 +10,28 @@ def create_user(user_first_name: str,
                 user_password:str,
                 user_password_salt: str,
                 user_auth_token: str) -> bool:
-    result = session.query(User).filter(User.email.like(user_email))
+    result = session.query(exists().where(User.email == user_email)).scalar()
     if result:
         return False
 
     user = User(first_name=user_first_name,
                 last_name=user_last_name,
                 email=user_email,
-                password=user_password,
-                user_password_salt = user_password_salt,
-                user_auth_token = user_auth_token)
+                password_hashed=user_password,
+                password_salt = user_password_salt,
+                auth_token = user_auth_token)
     session.add(user)
     session.commit()
     return True
 
 
-def update_user(user_auth_token: str,
+def update_user(user_id: str,
                 user_first_name: str,
                 user_last_name:str,
                 user_email:str,
                 user_password:str,
                 user_password_salt: str) -> bool:
-    user = session.query(User).filter(User.auth_token == user_auth_token)
+    user = session.query(User).filter_by(id = user_id).first()
     if not user:
         return False
 
@@ -42,16 +44,16 @@ def update_user(user_auth_token: str,
     return True
 
 
-def get_user(user_auth_token: str) -> User:
-    return session.query(User).filter(User.auth_token == user_auth_token)
+def get_user_by_email(user_email: str) -> User:
+    return session.query(User).filter_by(email = user_email).first()
 
 
-def get_user(user_email: str, user_password:str) -> User:
-    return session.query(User).filter(User.email == user_email, User.password_hashed == user_password)
+def get_user_by_token(user_auth_token: str) -> User:
+    return session.query(User).filter_by(auth_token = user_auth_token).first()
 
 
-def delete_user(user_auth_token: str) -> bool:
-    rows_affected = session.query(User).filter(User.auth_token == user_auth_token).delete()
+def delete_user(user_id: str) -> bool:
+    rows_affected = session.query(User).filter_by(id = user_id).delete()
     session.commit()
     return rows_affected > 0
     

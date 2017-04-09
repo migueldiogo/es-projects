@@ -1,4 +1,6 @@
 import datetime
+
+from sqlalchemy import Table
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column
 from sqlalchemy import Date
@@ -11,12 +13,14 @@ from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
+playlist_song = Table("playlist_song", Base.metadata,
+                    Column('playlist_id', ForeignKey("playlists.id"), primary_key=True),
+                    Column('song_id', ForeignKey("songs.id"), primary_key = True))
 
 class User(Base):
     __tablename__ = "users"
     
     id = Column(Integer, Sequence("user_id_seq"), primary_key = True)
-    session_token = Column(String(200))
     first_name = Column(String(30))
     last_name = Column(String(30))
     email = Column(String(100))
@@ -26,36 +30,18 @@ class User(Base):
     playlists = relationship("Playlist", back_populates = "user", cascade = "delete")
     songs = relationship("Song", back_populates = "user")
 
-    def __init__(self, first_name, last_name, email, password_hashed):
+    def __init__(self, first_name, last_name, email, password_hashed, password_salt, auth_token):
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
         self.password_hashed = password_hashed
+        self.password_salt = password_salt
+        self.auth_token = auth_token
     
     def __repr__(self):
         return "<User(id = '%i', first_name = '%s', last_name = '%s', email = '%s')>" \
                % (self.id, self.first_name, self.last_name, self.email)
 
-
-class Playlist(Base):
-    __tablename__ = "playlists"
-    
-    id = Column(Integer, Sequence("playlist_id_seq"), primary_key = True)
-    name = Column(String(100))
-    created_at = Column(Date, default = datetime.datetime.now())
-    size = Column(Integer, default=0)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    user = relationship("User", back_populates = "playlists")
-    songs = relationship("Song", secondary = "playlist_song")
-    
-    def __init__(self, name, created_at, user_id):
-        self.name = name
-        self.created_at = created_at
-        self.user_id = user_id
-    
-    def __repr__(self):
-        return "<Playlist(id = '%i', name = '%s', date = '%s', user_id = '%i', user_name = '%s')>" \
-               % (self.id, self.name, self.created_at, self.user_id, self.user.name)
 
 
 class Song(Base):
@@ -83,3 +69,24 @@ class Song(Base):
     def __repr__(self):
         return "<Song(id = '%i', title = '%s', album = '%s', artist = '%s', release_year = '%d', url = '%s')>" \
                % (self.id, self.title, self.artist, self.artist, self.release_year, self.url)
+
+
+class Playlist(Base):
+    __tablename__ = "playlists"
+    
+    id = Column(Integer, Sequence("playlist_id_seq"), primary_key = True)
+    name = Column(String(100))
+    created_at = Column(Date, default = datetime.datetime.now())
+    size = Column(Integer, default = 0)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    user = relationship("User", back_populates = "playlists")
+    songs = relationship("Song", secondary = "playlist_song")
+    
+    def __init__(self, name, user_id):
+        self.name = name
+        self.user_id = user_id
+    
+    def __repr__(self):
+        return "<Playlist(id = '%i', name = '%s', date = '%s', user_id = '%i', user_name = '%s')>" \
+               % (self.id, self.name, self.created_at, self.user_id, self.user.name)
+

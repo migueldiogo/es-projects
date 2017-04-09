@@ -1,5 +1,5 @@
-from business import session
-from models import Playlist, Song
+from crud import session
+from models import Playlist
 
 
 def create_playlist(user_id: int, playlist_name: str) -> bool:
@@ -26,15 +26,17 @@ def update_playlist(playlist: Playlist) -> bool:
 
 
 def get_playlist(playlist_id: int) -> Playlist:
-    return session.query(Playlist).filter(Playlist.id == playlist_id)
+    return session.query(Playlist).filter_by(id = playlist_id).first()
 
 
-def get_all_playlists(user_id: int) -> list:
-    return session.query(Playlist).filter(Playlist.user_id == user_id)
+def get_all_playlists(user_id: int, offset: int = 0, limit: int = 10) -> list:
+    return session.query(Playlist).filter_by(user_id = user_id)\
+            .offset(offset)\
+            .limit(limit)
 
 
 def delete_playlist(playlist_id: int) -> bool:
-    rows_affected = session.query(Playlist).filter(Playlist.id == playlist_id).delete()
+    rows_affected = session.query(Playlist).filter_by(id = playlist_id).delete()
     return rows_affected > 0
     
 
