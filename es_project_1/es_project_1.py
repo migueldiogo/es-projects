@@ -7,9 +7,10 @@ from flask import request
 from crud import user as crud_user
 from crud import song as crud_song
 from crud import playlist as crud_playlist
-
-import utils
 from serializers import UserSerializer, SongSerializer, PlaylistSerializer
+import utils
+import aws
+
 
 app = Flask(__name__)
 
@@ -131,15 +132,27 @@ def get_songs(user):
 @app.route(REST_PREFIX + '/songs/', methods = ['POST'])
 @requires_auth
 def create_song(user):
-    # TODO substitute song url for the file per se
     form = request.form
+        
+    song_file = request.files['file']
+
+    import os
+    filename, file_extension = os.path.splitext(song_file.filename)
     
+    if file_extension != ".wav" and file_extension != ".mp3":
+        abort(400)
+
+    song_new_filename = utils.generate_uuid()
+    
+    song_url = aws.upload_song(song_new_filename, file_extension, song_file)
+
     crud_song.create_song(user_id = user.id,
                           song_title = form['title'],
                           song_artist = form['artist'],
                           song_album = form['album'],
                           song_release_year = int(form['releaseYear']),
-                          song_url = form['url'])
+                          song_url = song_url)
+    
     return Response(status = 200)
 
 
@@ -167,24 +180,30 @@ def delete_song(user, song_id):
 @requires_auth
 def update_song(user, song_id):
     form = request.form
-    song_title = form['title'],
-    song_artist = form['artist'],
-    song_album = form['album'],
-    song_release_year = int(form['releaseYear']),
-    song_url = form['url']
-    
+        
     song = crud_song.get_song(song_id = song_id)
+
     if not song:
         abort(404)
     if song.user_id != user.id:
         abort(403)
 
-    song.title = song_title if song_title else song.title
-    song.artist = song_artist if song_artist else song.artist
-    song.album = song_album if song_album else song.album
-    song.release_year = song_release_year if song_release_year else song.release_year
-    song.url = song_url if song_url else song.url
+    song.title = form['title'] if 'title' in form else song.title
+    song.artist = form['artist'] if 'artist' in form else song.artist
+    song.album = form['album'] if 'album' in form else song.album
+    song.release_year = form['releaseYear'] if 'releaseYear' in form else song.release_year
+    if 'file' in request.files:
+        song_file = request.files['file']
+        import os
+        filename, file_extension = os.path.splitext(song_file.filename)
     
+        if file_extension != ".wav" and file_extension != ".mp3":
+            abort(400)
+    
+        song_new_filename = utils.generate_uuid()
+    
+        song.url = aws.upload_song(song_new_filename, file_extension, song_file)
+        
     crud_song.update_song(song)
     
     return Response(status = 200)
