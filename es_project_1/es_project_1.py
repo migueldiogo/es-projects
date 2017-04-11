@@ -3,6 +3,7 @@ from functools import wraps
 from flask import Flask, jsonify
 from flask import Response
 from flask import abort
+from flask import render_template
 from flask import request
 from crud import user as crud_user
 from crud import song as crud_song
@@ -35,7 +36,8 @@ def requires_auth(f):
 
 @app.route('/')
 def hello_world():
-    return 'Hello World!'
+    #return 'Hello World!'
+    return render_template("login.html")
 
 
 @app.route(REST_PREFIX + '/users/', methods = ['POST'])

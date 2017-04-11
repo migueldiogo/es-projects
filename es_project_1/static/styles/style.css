@@ -1,0 +1,36 @@
+body {
+    padding: 20px;
+    margin: 0;
+}
+
+ul.header {
+    background-color: darkorange;
+    padding: 0;
+}
+
+ul.header li {
+    display: inline;
+    list-style-type: none;
+    margin: 0;
+}
+
+ul.header li a {
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 20px;
+    display: inline-block;
+}
+
+.content {
+    padding: 20px;
+    overflow-y: scroll;
+}
+
+.form-control{
+    width:20%;
+}
+
+form{
+    padding-top:30px;
+}
