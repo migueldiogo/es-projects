@@ -1,4 +1,5 @@
 import base64
+import tempfile
 from functools import wraps
 
 from flask import Flask, jsonify
@@ -135,9 +136,9 @@ def get_songs(user):
 @app.route(REST_PREFIX + '/songs/', methods = ['POST'])
 @requires_auth
 def create_song(user):
-    data = request.get_json()
-        
-    song_file = base64.b64decode(data['file'])
+    form = request.form
+
+    song_file = request.files['file']
 
     import os
     filename, file_extension = os.path.splitext(song_file.filename)
@@ -150,12 +151,12 @@ def create_song(user):
     song_url = aws.upload_song(song_new_filename, file_extension, song_file)
 
     crud_song.create_song(user_id = user.id,
-                          song_title = data['title'],
-                          song_artist = data['artist'],
-                          song_album = data['album'],
-                          song_release_year = int(data['releaseYear']),
+                          song_title = form['title'],
+                          song_artist = form['artist'],
+                          song_album = form['album'],
+                          song_release_year = int(form['releaseYear']),
                           song_url = song_url)
-    
+        
     return Response(status = 200)
 
 
@@ -182,7 +183,7 @@ def delete_song(user, song_id):
 @app.route(REST_PREFIX + '/songs/<int:song_id>/', methods = ['PUT'])
 @requires_auth
 def update_song(user, song_id):
-    data = request.get_json()
+    form = request.form
         
     song = crud_song.get_song(song_id = song_id)
 
@@ -191,12 +192,12 @@ def update_song(user, song_id):
     if song.user_id != user.id:
         abort(403)
 
-    song.title = data['title'] if 'title' in data else song.title
-    song.artist = data['artist'] if 'artist' in data else song.artist
-    song.album = data['album'] if 'album' in data else song.album
-    song.release_year = data['releaseYear'] if 'releaseYear' in data else song.release_year
-    if 'file' in data:
-        song_file = base64.b64decode(data['file'])
+    song.title = form['title'] if 'title' in form else song.title
+    song.artist = form['artist'] if 'artist' in form else song.artist
+    song.album = form['album'] if 'album' in form else song.album
+    song.release_year = form['releaseYear'] if 'releaseYear' in form else song.release_year
+    if 'file' in request.files:
+        song_file = request.files['file']
 
         import os
         filename, file_extension = os.path.splitext(song_file.filename)
