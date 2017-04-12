@@ -6,11 +6,13 @@ class UserSerializer:
             for user in data:
                 serializer.append({'firstName':user.first_name,
                                    'lastName':user.last_name,
-                                   'email':user.email})
+                                   'email':user.email,
+                                   'id':user.id})
         else:
             serializer = {'firstName':data.first_name,
                           'lastName':data.last_name,
-                          'email':data.email}
+                          'email':data.email,
+                          'id': data.id}
         return serializer
 
 

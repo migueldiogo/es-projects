@@ -38,7 +38,6 @@ def requires_auth(f):
 
 @app.route('/')
 def hello_world():
-    #return 'Hello World!'
     return render_template("login.html")
 
 
@@ -64,6 +63,19 @@ def create_user():
                         response = {'code':409, 'message':"There is already an user with this email", 'fields':"email"})
     else:
         return Response(status = 200)
+
+
+@app.route(REST_PREFIX + '/users/self/', methods = ['POST'])
+@requires_auth
+def update_user(user):
+    password_salt = utils.generate_uuid()
+    data = request.get_json()
+    user.first_name = data['firstName'] if data['firstName'] != "" else user.first_name
+    user.last_name = data['lastName'] if data['lastName'] != "" else user.last_name
+    user.password_hashed = data['password'] if data['password'] != "" else user.password_hashed
+    user.password_hashed = utils.hash_password(password_raw=user.password_hashed, salt=password_salt)
+    crud_user.update_user(user.id, user.first_name, user.last_name, None, user.password_hashed, password_salt)
+    return Response(status=200)
 
 
 @app.route(REST_PREFIX + '/users/self/', methods = ['GET'])
