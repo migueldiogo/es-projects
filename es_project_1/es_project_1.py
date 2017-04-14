@@ -116,8 +116,10 @@ def get_user_songs(user):
 @app.route(REST_PREFIX + '/users/self/playlists/', methods = ['GET'])
 @requires_auth
 def get_user_playlists(user):
-    offset = request.args.get('offset')
-    limit = request.args.get('limit')
+    args = request.args
+
+    offset = args.get('offset') if 'offset' in args else 0
+    limit = args.get('limit') if 'limit' in args else None
     
     data = crud_playlist.get_all_playlists(offset = offset,
                                            limit = limit,
@@ -128,10 +130,12 @@ def get_user_playlists(user):
 @app.route(REST_PREFIX + '/songs/', methods = ['GET'])
 @requires_auth
 def get_songs(user):
-    offset = request.args.get('offset')
-    limit = request.args.get('limit')
-    title = request.args.get('title')
-    artist = request.args.get('artist')
+    args = request.args
+        
+    offset = args.get('offset') if 'offset' in args else 0
+    limit = args.get('limit') if 'limit' in args else None
+    title = args.get('title')
+    artist = args.get('artist')
     
     data = crud_song.get_all_songs(offset = offset,
                                    limit = limit,
@@ -181,8 +185,13 @@ def get_song(user, song_id):
 @requires_auth
 def delete_song(user, song_id):
     # if there isn't any super user, create one
-    super_user = create_secure_user("admin", "", "", "admin")
-    
+    super_user = crud_user.get_user_by_email("admin")
+
+    if not super_user:
+        create_secure_user(first_name = "admin", last_name = "", email = "admin", password = "admin")
+    else:
+        super_user = crud_user.get_user_by_email("admin")
+
     song = crud_song.get_song(song_id = song_id)
     if not song:
         abort(404)
@@ -284,7 +293,7 @@ def get_songs_from_playlist(user, playlist_id):
         abort(403)
     
     offset = args.get('offset') if 'offset' in args else 0
-    limit = args.get('limit') if 'limit' in args else playlist.size
+    limit = args.get('limit') if 'limit' in args else None
     title = args.get('title')
     artist = args.get('artist')
     

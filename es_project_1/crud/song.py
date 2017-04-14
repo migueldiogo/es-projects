@@ -15,7 +15,7 @@ def create_song(user_id: int, song_title: str, song_artist: str, song_album: str
 
 
 def update_song(song_id: int, song_title: str, song_album : str, song_release_year: int, song_url: str) -> bool:
-    song = session.query(Song).filter(Song.id == song_id)
+    song = session.query(Song).filter_by(id = song_id).first()
     if song:
         song.title = song_title if song_title else song.title
         song.album = song_album if song_album else song_album
@@ -28,7 +28,7 @@ def update_song(song_id: int, song_title: str, song_album : str, song_release_ye
     
     
 def update_song(song_id: int, song_title: str, song_album : str, song_release_year: int, song_url: str) -> bool:
-    song = Song(session.query(Song).filter(Song.id == song_id))
+    song = session.query(Song).filter_by(id = song_id).first()
     if song:
         song.title = song_title if song_title else song.title
         song.album = song_album if song_album else song_album
@@ -42,9 +42,9 @@ def update_song(song_id: int, song_title: str, song_album : str, song_release_ye
     
     
 def update_song_ownership(song_id: int, new_owner_user_id: int) -> bool:
-    song = Song(session.query(Song).filter(Song.id == song_id))
+    song = session.query(Song).filter_by(id = song_id).first()
     if song:
-        song.user_id = new_owner_user_id if new_owner_user_id else song.user_id
+        song.user_id = new_owner_user_id
         session.commit()
         return True
     else:
