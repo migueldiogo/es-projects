@@ -76,3 +76,7 @@ form{
 #delete_playlist{
     margin-top: 50px;
 }
+
+ul.playlists li{
+    padding:10px;
+}

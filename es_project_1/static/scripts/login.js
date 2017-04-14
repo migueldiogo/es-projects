@@ -644,36 +644,28 @@ class ListMyPlaylists extends React.Component {
             })
                 .then(result => result.json())
                 .then(items => this.setState({playlists: items}));
-            this.orderPlaylists.bind(this);
         }
     }
-
-    orderPlaylists(){
-        if (this.state.selected == "ascending name"){
-            this.setState({playlists:window.sortAscendingByKey(this.state.playlists, "name")});
-        }
-        else if (this.state.selected == "descending name"){
-            this.setState({playlists:window.sortDescendingByKey(this.state.playlists, "name")});
-        }
-        else if (this.state.selected == "ascending size"){
-            this.setState({playlists:window.sortAscendingByKey(this.state.playlists, "size")});
-        }
-        else if (this.state.selected == "descending size"){
-            this.setState({playlists:window.sortDescendingByKey(this.state.playlists, "size")});
-        }
-        else if (this.state.selected == "ascending date"){
-            this.setState({playlists:window.sortAscendingByKey(this.state.playlists, "createdAt")});
-        }
-        else if (this.state.selected == "descending date"){
-            this.setState({playlists:window.sortDescendingByKey(this.state.playlists, "createdAt")});
-        }
-        this.forceUpdate();
-    }
-
 
     handleChange(event) {
-        this.setState({selected:event.target.value});
-        this.orderPlaylists();
+        if (event.target.value == "ascending name"){
+            this.setState({playlists:window.sortAscendingByKey(this.state.playlists, "name")});
+        }
+        else if (event.target.value == "descending name"){
+            this.setState({playlists:window.sortDescendingByKey(this.state.playlists, "name")});
+        }
+        else if (event.target.value == "ascending size"){
+            this.setState({playlists:window.sortAscendingByKey(this.state.playlists, "size")});
+        }
+        else if (event.target.value == "descending size"){
+            this.setState({playlists:window.sortDescendingByKey(this.state.playlists, "size")});
+        }
+        else if (event.target.value == "ascending date"){
+            this.setState({playlists:window.sortAscendingByKey(this.state.playlists, "createdAt")});
+        }
+        else if (event.target.value == "descending date"){
+            this.setState({playlists:window.sortDescendingByKey(this.state.playlists, "createdAt")});
+        }
     }
 
     checkCookie() {
@@ -684,6 +676,7 @@ class ListMyPlaylists extends React.Component {
                     <h2>List My Playlists by</h2>
                     <div>
                         <select onChange={this.handleChange.bind(this)}>
+                            <option disabled selected value> -- select an option -- </option>
                             <option value="ascending name">Ascending Name</option>
                             <option value="descending name">Descending Name</option>
                             <option value="ascending size">Ascending Size</option>
@@ -694,7 +687,8 @@ class ListMyPlaylists extends React.Component {
                     </div>
                     <h3>Playlists</h3>
                     <ul className="playlists">
-                        {this.state.playlists.map(playlist=><li key={playlist.id}>{playlist.name}</li>)}
+                        {this.state.playlists.map(playlist=><li key={playlist.id}><p>{playlist.name}</p>
+                        <p>{playlist.size} musics</p><p>Created at: {playlist.createdAt}</p></li>)}
                     </ul>
                 </div>
             );
@@ -702,7 +696,6 @@ class ListMyPlaylists extends React.Component {
         else {
             return (
                 <h2>Choose one of the options above!</h2>
-
             );
         }
     }
