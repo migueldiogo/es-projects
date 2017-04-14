@@ -10,6 +10,7 @@ from flask import request
 from crud import user as crud_user
 from crud import song as crud_song
 from crud import playlist as crud_playlist
+from models import Song, User, Playlist
 from serializers import UserSerializer, SongSerializer, PlaylistSerializer
 import utils
 import aws
@@ -44,26 +45,19 @@ def hello_world():
 @app.route(REST_PREFIX + '/users/', methods = ['POST'])
 def create_user():
     data = request.get_json()
-    password_salt = utils.generate_uuid()
     
-    password_hashed = utils.hash_password(password_raw = data['password'], salt = password_salt)
-    
-    auth_token = utils.generate_uuid()
-    
-    result = crud_user.create_user(
+    result = create_secure_user(
             data['firstName'],
             data['lastName'],
             data['email'],
-            password_hashed,
-            password_salt,
-            auth_token)
+            data['password'])
     
     if not result:
         return Response(status = 409,
                         response = {'code':409, 'message':"There is already an user with this email", 'fields':"email"})
     else:
         return Response(status = 200)
-
+    
 
 @app.route(REST_PREFIX + '/users/self/', methods = ['POST'])
 @requires_auth
@@ -87,6 +81,7 @@ def get_user(user):
 @app.route(REST_PREFIX + '/users/self/', methods = ['DELETE'])
 @requires_auth
 def delete_user(user):
+    # if there isn't any super user, create one
     crud_user.delete_user(user.id)
     return Response(status = 200)
 
@@ -185,9 +180,16 @@ def get_song(user, song_id):
 @app.route(REST_PREFIX + '/songs/<int:song_id>/', methods = ['DELETE'])
 @requires_auth
 def delete_song(user, song_id):
-    song = crud_song.delete_song(song_id = song_id)
+    # if there isn't any super user, create one
+    super_user = create_secure_user("admin", "", "", "admin")
+    
+    song = crud_song.get_song(song_id = song_id)
     if not song:
         abort(404)
+    if song.user_id != user.id:
+        abort(403)
+        
+    crud_song.update_song_ownership(song_id, super_user.id)
     
     return Response(status = 200)
 
@@ -272,10 +274,19 @@ def update_playlist(user, playlist_id):
 @app.route(REST_PREFIX + '/playlists/<int:playlist_id>/songs/', methods = ['GET'])
 @requires_auth
 def get_songs_from_playlist(user, playlist_id):
-    offset = request.args.get('offset')
-    limit = request.args.get('limit')
-    title = request.args.get('title')
-    artist = request.args.get('artist')
+    args = request.args
+    playlist = crud_playlist.get_playlist(playlist_id = playlist_id)
+    
+    if not playlist:
+        abort(404)
+    
+    if playlist.user_id != user.id:
+        abort(403)
+    
+    offset = args.get('offset') if 'offset' in args else 0
+    limit = args.get('limit') if 'limit' in args else playlist.size
+    title = args.get('title')
+    artist = args.get('artist')
     
     data = crud_song.get_all_songs_from_playlist(playlist_id = playlist_id,
                                                  offset = offset,
@@ -324,6 +335,24 @@ def remove_song_from_playlist(user, playlist_id, song_id):
     crud_playlist.update_playlist(playlist)
     
     return Response(status = 200)
+
+
+def create_secure_user(first_name: str, last_name: str, email: str, password: str) -> User:
+    password_salt = utils.generate_uuid()
+    
+    password_hashed = utils.hash_password(password_raw = password, salt = password_salt)
+    
+    auth_token = utils.generate_uuid()
+    
+    result = crud_user.create_user(
+            first_name,
+            last_name,
+            email,
+            password_hashed,
+            password_salt,
+            auth_token)
+    
+    return result
 
 
 @app.errorhandler(400)

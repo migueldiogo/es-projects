@@ -27,6 +27,30 @@ def update_song(song_id: int, song_title: str, song_album : str, song_release_ye
         return False
     
     
+def update_song(song_id: int, song_title: str, song_album : str, song_release_year: int, song_url: str) -> bool:
+    song = Song(session.query(Song).filter(Song.id == song_id))
+    if song:
+        song.title = song_title if song_title else song.title
+        song.album = song_album if song_album else song_album
+        song.release_year = song_release_year if song_release_year else song_release_year
+        song.url = song_url if song_url else song.url
+
+        session.commit()
+        return True
+    else:
+        return False
+    
+    
+def update_song_ownership(song_id: int, new_owner_user_id: int) -> bool:
+    song = Song(session.query(Song).filter(Song.id == song_id))
+    if song:
+        song.user_id = new_owner_user_id if new_owner_user_id else song.user_id
+        session.commit()
+        return True
+    else:
+        return False
+    
+    
 def update_song(song: Song) -> bool:
     session.add(song)
     session.commit()

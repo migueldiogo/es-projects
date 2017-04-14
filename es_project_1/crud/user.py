@@ -9,10 +9,10 @@ def create_user(user_first_name: str,
                 user_email:str,
                 user_password:str,
                 user_password_salt: str,
-                user_auth_token: str) -> bool:
+                user_auth_token: str) -> User:
     result = session.query(exists().where(User.email == user_email)).scalar()
     if result:
-        return False
+        return None
 
     user = User(first_name=user_first_name,
                 last_name=user_last_name,
@@ -22,7 +22,7 @@ def create_user(user_first_name: str,
                 auth_token = user_auth_token)
     session.add(user)
     session.commit()
-    return True
+    return user
 
 
 def update_user(user_id: str,
