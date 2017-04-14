@@ -59,15 +59,15 @@ def create_user():
         return Response(status = 200)
     
 
-@app.route(REST_PREFIX + '/users/self/', methods = ['POST'])
+@app.route(REST_PREFIX + '/users/self/<int:user_id>/', methods = ['PUT'])
 @requires_auth
-def update_user(user):
-    password_salt = utils.generate_uuid()
+def update_user(user, user_id):
     data = request.get_json()
     user.first_name = data['firstName'] if data['firstName'] != "" else user.first_name
     user.last_name = data['lastName'] if data['lastName'] != "" else user.last_name
     user.password_hashed = data['password'] if data['password'] != "" else user.password_hashed
-    user.password_hashed = utils.hash_password(password_raw=user.password_hashed, salt=password_salt)
+    password_salt = utils.generate_uuid() if data['password'] != "" else user.password_salt
+    user.password_hashed = utils.hash_password(password_raw=user.password_hashed, salt=password_salt) if data['password'] != "" else user.password_hashed
     crud_user.update_user(user.id, user.first_name, user.last_name, None, user.password_hashed, password_salt)
     return Response(status=200)
 
@@ -120,7 +120,7 @@ def get_user_playlists(user):
 
     offset = args.get('offset') if 'offset' in args else 0
     limit = args.get('limit') if 'limit' in args else None
-    
+
     data = crud_playlist.get_all_playlists(offset = offset,
                                            limit = limit,
                                            user_id = user.id)

@@ -14,7 +14,24 @@
     <link rel="stylesheet" type="text/css" href="/static/styles/style.css">
 </head>
 <body>
-    <div id="container"></div>
-    <script type="text/babel" src="/static/scripts/login.js"></script>
+<div id="container"></div>
+<script type="text/babel" src="/static/scripts/login.js"></script>
+<script type="text/javascript">
+    function sortAscendingByKey(array, key) {
+        return array.sort(function (a, b) {
+            var x = a[key];
+            var y = b[key];
+            return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+        });
+    }
+
+    function sortDescendingByKey(array, key) {
+        return array.sort(function (a, b) {
+            var x = a[key];
+            var y = b[key];
+            return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+        });
+    }
+</script>
 </body>
 </html>

@@ -4,22 +4,60 @@ body {
 }
 
 ul.header {
+    list-style: none;
     background-color: darkorange;
     padding: 0;
+    margin: 0;
+    z-index: 1;
 }
 
 ul.header li {
-    display: inline;
-    list-style-type: none;
-    margin: 0;
+    display: inline-block;
+    position: relative;
 }
 
 ul.header li a {
+    display: block;
     color: white;
     font-weight: bold;
     text-decoration: none;
-    padding: 20px;
-    display: inline-block;
+    padding: 15px 30px 15px 30px;
+    white-space: nowrap;
+}
+
+ul li a:hover {
+    background: darkgrey;
+}
+
+li ul {
+    display: none;
+}
+
+li:hover ul {
+    display: block;
+    position: absolute;
+}
+
+li:hover li {
+    font-size: 12px;
+    width:150px;
+    max-width:150px;
+}
+
+li:hover a{
+    background: darkorange;
+}
+
+li:hover li a:hover {
+    background: darkgrey;
+}
+
+.dropdown ul{
+    display: none;
+}
+
+.dropdown:hover ul {
+    display:block;
 }
 
 .content {
@@ -33,4 +71,8 @@ ul.header li a {
 
 form{
     padding-top:30px;
+}
+
+#delete_playlist{
+    margin-top: 50px;
 }
