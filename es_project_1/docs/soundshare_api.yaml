@@ -145,61 +145,6 @@ paths:
           description: Unexpected error
           schema:
             $ref: '#/definitions/Error'
-  /users/self/songs:
-    get:
-      summary: List all songs owned by the user
-      description: |
-        List all songs owned by the user. The response includes a list of songs. Optional query parameters could be fill up to get only the songs that match to some criteria.
-      parameters:
-        - name: offset
-          in: query
-          description: Position in the list of the first record to retrieve
-          required: false
-          type: integer
-          minimum: 0
-        - name: limit
-          in: query
-          description: Get n records from the record at the offset postition (inclusive)
-          required: false
-          type: integer
-          minimum: 1
-        - name: title
-          in: query
-          description: Title of the song
-          required: false
-          type: string
-        - name: artist
-          in: query
-          description: Artist of the song
-          required: false
-          type: string
-        - name: album
-          in: query
-          description: Album of the song
-          required: false
-          type: string
-        - name: releaseYear
-          in: query
-          description: Release year of the song
-          required: false
-          type: integer
-      tags:
-        - Songs
-      security:
-        - tokenAuth: []
-      responses:
-        200:
-          description: List of songs from the user
-          schema:
-            $ref: '#/definitions/Song'
-        401:
-          description: Unauthorized. Please fill up the 'Authorization' header
-          schema:
-            $ref: '#/definitions/Error'
-        default:
-          description: Unexpected error
-          schema:
-            $ref: '#/definitions/Error'
   /users/self/playlists:
     get:
       summary: List all user's playlists

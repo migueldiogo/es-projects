@@ -346,6 +346,21 @@ def remove_song_from_playlist(user, playlist_id, song_id):
     return Response(status = 200)
 
 
+def fibonacci(n):
+    if n <= 2:
+        return 1
+    return fibonacci(n-1) + fibonacci(n-2)
+
+
+@app.route(REST_PREFIX + '/computefibonacci/', methods = ['GET'])
+def compute_fibonacci():
+    try:
+        n = int(request.args['n'])
+    except ValueError:
+        abort(400)
+    return 'Fibonacci(' + str(n) + ') = ' + str(fibonacci(n))
+        
+
 def create_secure_user(first_name: str, last_name: str, email: str, password: str) -> User:
     password_salt = utils.generate_uuid()
     
