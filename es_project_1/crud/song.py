@@ -61,6 +61,27 @@ def get_song(song_id: int) -> Song:
     return session.query(Song).filter_by(id = song_id).first()
 
 
+def get_all_songs_from_user(offset: int = 0, limit: int = 10, song_title: str = None, song_artist: str = None, user_id: int = None) -> list:
+    if song_title and song_artist:
+        songs_result = session.query(Song).filter_by(title = song_title, artist = song_artist, user_id = user_id)\
+            .offset(offset)\
+            .limit(limit)
+    elif song_title:
+        songs_result = session.query(Song).filter_by(title = song_title, user_id = user_id)\
+            .offset(offset)\
+            .limit(limit)
+    elif song_artist:
+        songs_result = session.query(Song).filter_by(artist = song_artist, user_id = user_id)\
+            .offset(offset)\
+            .limit(limit)
+    else:
+        songs_result = session.query(Song).filter_by(user_id = user_id)\
+            .offset(offset)\
+            .limit(limit)\
+            .all()
+    return songs_result
+
+
 def get_all_songs(offset: int = 0, limit: int = 10, song_title: str = None, song_artist: str = None) -> list:
     if song_title and song_artist:
         songs_result = session.query(Song).filter_by(title = song_title, artist = song_artist)\
@@ -77,7 +98,7 @@ def get_all_songs(offset: int = 0, limit: int = 10, song_title: str = None, song
     else:
         songs_result = session.query(Song)\
             .offset(offset)\
-            .limit(limit) \
+            .limit(limit)\
             .all()
     return songs_result
 

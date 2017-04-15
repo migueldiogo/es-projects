@@ -15,7 +15,6 @@ from serializers import UserSerializer, SongSerializer, PlaylistSerializer
 import utils
 import aws
 
-
 app = Flask(__name__)
 
 REST_PREFIX = '/api/v1'
@@ -54,10 +53,11 @@ def create_user():
     
     if not result:
         return Response(status = 409,
-                        response = {'code':409, 'message':"There is already an user with this email", 'fields':"email"})
+                        response = {'code': 409, 'message': "There is already an user with this email",
+                                    'fields': "email"})
     else:
         return Response(status = 200)
-    
+
 
 @app.route(REST_PREFIX + '/users/self/<int:user_id>/', methods = ['PUT'])
 @requires_auth
@@ -67,9 +67,10 @@ def update_user(user, user_id):
     user.last_name = data['lastName'] if data['lastName'] != "" else user.last_name
     user.password_hashed = data['password'] if data['password'] != "" else user.password_hashed
     password_salt = utils.generate_uuid() if data['password'] != "" else user.password_salt
-    user.password_hashed = utils.hash_password(password_raw=user.password_hashed, salt=password_salt) if data['password'] != "" else user.password_hashed
+    user.password_hashed = utils.hash_password(password_raw = user.password_hashed, salt = password_salt) if data[
+                                                                                                                 'password'] != "" else user.password_hashed
     crud_user.update_user(user.id, user.first_name, user.last_name, None, user.password_hashed, password_salt)
-    return Response(status=200)
+    return Response(status = 200)
 
 
 @app.route(REST_PREFIX + '/users/self/', methods = ['GET'])
@@ -101,7 +102,7 @@ def get_token():
     if input_hash != right_hash:
         abort(401)
     
-    result = {'token':user.auth_token}
+    result = {'token': user.auth_token}
     
     return jsonify(result)
 
@@ -109,18 +110,25 @@ def get_token():
 @app.route(REST_PREFIX + '/users/self/songs/', methods = ['GET'])
 @requires_auth
 def get_user_songs(user):
-    # TODO EXTRA
-    return 'Hello World!'
+    args = request.args
+    
+    offset = args.get('offset') if 'offset' in args else 0
+    limit = args.get('limit') if 'limit' in args else None
+    
+    data = crud_song.get_all_songs_from_user(offset = offset,
+                                             limit = limit,
+                                             user_id = user.id)
+    return jsonify(SongSerializer.serialize(data, many = True))
 
 
 @app.route(REST_PREFIX + '/users/self/playlists/', methods = ['GET'])
 @requires_auth
 def get_user_playlists(user):
     args = request.args
-
+    
     offset = args.get('offset') if 'offset' in args else 0
     limit = args.get('limit') if 'limit' in args else None
-
+    
     data = crud_playlist.get_all_playlists(offset = offset,
                                            limit = limit,
                                            user_id = user.id)
@@ -131,7 +139,7 @@ def get_user_playlists(user):
 @requires_auth
 def get_songs(user):
     args = request.args
-        
+    
     offset = args.get('offset') if 'offset' in args else 0
     limit = args.get('limit') if 'limit' in args else None
     title = args.get('title')
@@ -148,26 +156,26 @@ def get_songs(user):
 @requires_auth
 def create_song(user):
     form = request.form
-
+    
     song_file = request.files['file']
-
+    
     import os
     filename, file_extension = os.path.splitext(song_file.filename)
     
     if file_extension != ".wav" and file_extension != ".mp3":
         abort(400)
-
+    
     song_new_filename = utils.generate_uuid()
     
     song_url = aws.upload_song(song_new_filename, file_extension, song_file)
-
+    
     crud_song.create_song(user_id = user.id,
                           song_title = form['title'],
                           song_artist = form['artist'],
                           song_album = form['album'],
                           song_release_year = int(form['releaseYear']),
                           song_url = song_url)
-        
+    
     return Response(status = 200)
 
 
@@ -186,18 +194,18 @@ def get_song(user, song_id):
 def delete_song(user, song_id):
     # if there isn't any super user, create one
     super_user = crud_user.get_user_by_email("admin")
-
+    
     if not super_user:
         create_secure_user(first_name = "admin", last_name = "", email = "admin", password = "admin")
     else:
         super_user = crud_user.get_user_by_email("admin")
-
+    
     song = crud_song.get_song(song_id = song_id)
     if not song:
         abort(404)
     if song.user_id != user.id:
         abort(403)
-        
+    
     crud_song.update_song_ownership(song_id, super_user.id)
     
     return Response(status = 200)
@@ -207,31 +215,31 @@ def delete_song(user, song_id):
 @requires_auth
 def update_song(user, song_id):
     form = request.form
-        
+    
     song = crud_song.get_song(song_id = song_id)
-
+    
     if not song:
         abort(404)
     if song.user_id != user.id:
         abort(403)
-
+    
     song.title = form['title'] if 'title' in form else song.title
     song.artist = form['artist'] if 'artist' in form else song.artist
     song.album = form['album'] if 'album' in form else song.album
     song.release_year = form['releaseYear'] if 'releaseYear' in form else song.release_year
     if 'file' in request.files:
         song_file = request.files['file']
-
+        
         import os
         filename, file_extension = os.path.splitext(song_file.filename)
-    
+        
         if file_extension != ".wav" and file_extension != ".mp3":
             abort(400)
-    
-        song_new_filename = utils.generate_uuid()
-    
-        song.url = aws.upload_song(song_new_filename, file_extension, song_file)
         
+        song_new_filename = utils.generate_uuid()
+        
+        song.url = aws.upload_song(song_new_filename, file_extension, song_file)
+    
     crud_song.update_song(song)
     
     return Response(status = 200)
@@ -266,7 +274,7 @@ def delete_playlist(user, playlist_id):
 def update_playlist(user, playlist_id):
     data = request.get_json()
     playlist_name = data['name']
-
+    
     playlist = crud_playlist.get_playlist(playlist_id = playlist_id)
     if not playlist:
         abort(404)
@@ -340,7 +348,7 @@ def remove_song_from_playlist(user, playlist_id, song_id):
     
     playlist.songs.remove(song)
     playlist.size -= 1
-
+    
     crud_playlist.update_playlist(playlist)
     
     return Response(status = 200)
@@ -349,7 +357,7 @@ def remove_song_from_playlist(user, playlist_id, song_id):
 def fibonacci(n):
     if n <= 2:
         return 1
-    return fibonacci(n-1) + fibonacci(n-2)
+    return fibonacci(n - 1) + fibonacci(n - 2)
 
 
 @app.route(REST_PREFIX + '/computefibonacci/', methods = ['GET'])
@@ -359,7 +367,7 @@ def compute_fibonacci():
     except ValueError:
         abort(400)
     return 'Fibonacci(' + str(n) + ') = ' + str(fibonacci(n))
-        
+
 
 def create_secure_user(first_name: str, last_name: str, email: str, password: str) -> User:
     password_salt = utils.generate_uuid()
@@ -382,8 +390,8 @@ def create_secure_user(first_name: str, last_name: str, email: str, password: st
 @app.errorhandler(400)
 def bad_request(error = None):
     message = {
-        'code':400,
-        'message':'Bad request',
+        'code': 400,
+        'message': 'Bad request',
     }
     resp = jsonify(message)
     resp.status_code = 400
@@ -394,8 +402,8 @@ def bad_request(error = None):
 @app.errorhandler(401)
 def unauthorized(error = None):
     message = {
-        'code':401,
-        'message':'Not authorized',
+        'code': 401,
+        'message': 'Not authorized',
     }
     resp = jsonify(message)
     resp.status_code = 401
@@ -406,8 +414,8 @@ def unauthorized(error = None):
 @app.errorhandler(403)
 def unauthorized(error = None):
     message = {
-        'code':403,
-        'message':'Forbidden',
+        'code': 403,
+        'message': 'Forbidden',
     }
     resp = jsonify(message)
     resp.status_code = 403
@@ -418,8 +426,8 @@ def unauthorized(error = None):
 @app.errorhandler(404)
 def not_found(error = None):
     message = {
-        'code':404,
-        'message':'Not Found',
+        'code': 404,
+        'message': 'Not Found',
     }
     resp = jsonify(message)
     resp.status_code = 404
