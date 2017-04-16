@@ -156,7 +156,7 @@ def get_songs(user):
 @requires_auth
 def create_song(user):
     form = request.form
-    
+
     song_file = request.files['file']
 
     import os

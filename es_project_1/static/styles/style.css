@@ -33,9 +33,14 @@ li ul {
     display: none;
 }
 
+li p{
+    padding-left: 10px;
+}
+
 li:hover ul {
     display: block;
     position: absolute;
+    z-index: 10;
 }
 
 li:hover li {
@@ -99,4 +104,8 @@ ul.songs li{
     padding:5px 0px 5px 0px;
     margin:5px 0px 5px 0px;
     border-style: groove;
+}
+
+#add_song_btn{
+    margin-top:10px;
 }
