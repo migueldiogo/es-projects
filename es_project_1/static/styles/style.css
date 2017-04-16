@@ -77,6 +77,26 @@ form{
     margin-top: 50px;
 }
 
+#delete_song{
+    margin-top: 50px;
+}
+
+ul.playlists{
+    list-style: none;
+}
+
+ul.songs{
+    list-style: none;
+}
+
 ul.playlists li{
-    padding:10px;
+    padding:5px;
+    margin:5px 0px 5px 0px;
+    border-style: groove;
+}
+
+ul.songs li{
+    padding:5px 0px 5px 0px;
+    margin:5px 0px 5px 0px;
+    border-style: groove;
 }

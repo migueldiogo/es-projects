@@ -135,7 +135,7 @@ def get_user_playlists(user):
     return jsonify(PlaylistSerializer.serialize(data, many = True))
 
 
-@app.route(REST_PREFIX + '/songs/', methods = ['GET'])
+@app.route(REST_PREFIX + '/songs', methods = ['GET'])
 @requires_auth
 def get_songs(user):
     args = request.args
@@ -158,7 +158,7 @@ def create_song(user):
     form = request.form
     
     song_file = request.files['file']
-    
+
     import os
     filename, file_extension = os.path.splitext(song_file.filename)
     
@@ -167,7 +167,8 @@ def create_song(user):
     
     song_new_filename = utils.generate_uuid()
     
-    song_url = aws.upload_song(song_new_filename, file_extension, song_file)
+    #song_url = aws.upload_song(song_new_filename, file_extension, song_file)
+    song_url = "/" + filename
     
     crud_song.create_song(user_id = user.id,
                           song_title = form['title'],
@@ -193,12 +194,12 @@ def get_song(user, song_id):
 @requires_auth
 def delete_song(user, song_id):
     # if there isn't any super user, create one
-    super_user = crud_user.get_user_by_email("admin")
+    super_user = crud_user.get_user_by_email("admin@admin.com")
     
     if not super_user:
-        create_secure_user(first_name = "admin", last_name = "", email = "admin", password = "admin")
+        create_secure_user(first_name = "admin", last_name = "", email = "admin@admin.com", password = "admin")
     else:
-        super_user = crud_user.get_user_by_email("admin")
+        super_user = crud_user.get_user_by_email("admin@admin.com")
     
     song = crud_song.get_song(song_id = song_id)
     if not song:
@@ -222,7 +223,7 @@ def update_song(user, song_id):
         abort(404)
     if song.user_id != user.id:
         abort(403)
-    
+
     song.title = form['title'] if 'title' in form else song.title
     song.artist = form['artist'] if 'artist' in form else song.artist
     song.album = form['album'] if 'album' in form else song.album
@@ -238,7 +239,9 @@ def update_song(user, song_id):
         
         song_new_filename = utils.generate_uuid()
         
-        song.url = aws.upload_song(song_new_filename, file_extension, song_file)
+        #song.url = aws.upload_song(song_new_filename, file_extension, song_file)
+        song.url = "/" + filename
+
     
     crud_song.update_song(song)
     

@@ -28,6 +28,15 @@ class App extends React.Component {
                                 <li><Link to="/deletePlaylist" activeClassName="active">Delete Playlist</Link></li>
                             </ul>
                         </li>
+                        <li className="dropdown"><a>Songs</a>
+                            <ul>
+                                <li><Link to="/uploadSong" activeClassName="active">Upload Song</Link></li>
+                                <li><Link to="/editSong" activeClassName="active">Edit Song</Link></li>
+                                <li><Link to="/listSongs" activeClassName="active">List All Songs</Link></li>
+                                <li><Link to="/findSongs" activeClassName="active">Search Songs</Link></li>
+                                <li><Link to="/deleteSong" activeClassName="active">Delete Song</Link></li>
+                            </ul>
+                        </li>
                         <li><Link to="/updateUser" activeClassName="active">Update User Information</Link></li>
                         <li><Link to="/logout" activeClassName="active">Logout</Link></li>
                     </ul>
@@ -444,15 +453,15 @@ class DeletePlaylist extends React.Component {
 
 
     handleChange(event) {
-        this.setState({selected:event.target.value});
+        this.setState({selected: event.target.value});
     }
 
     handleClick() {
         if (this.state.selected == 0) {
             alert("Please select a playlist to delete.");
         }
-        else{
-            fetch("http://127.0.0.1:5000/api/v1/playlists/"+this.state.selected+"/", {
+        else {
+            fetch("http://127.0.0.1:5000/api/v1/playlists/" + this.state.selected + "/", {
                 method: "DELETE",
                 headers: {
                     "Authorization": localStorage.getItem("token"),
@@ -465,7 +474,7 @@ class DeletePlaylist extends React.Component {
                         alert("This playlist is not yours!");
                         return;
                     }
-                    else if (response.status == 404){
+                    else if (response.status == 404) {
                         alert("Playlist not found.");
                         return;
                     }
@@ -474,7 +483,7 @@ class DeletePlaylist extends React.Component {
                         window.location.reload();
                         return;
                     }
-                    else{
+                    else {
                         alert("Could not delete playlist.");
                         return;
                     }
@@ -491,12 +500,14 @@ class DeletePlaylist extends React.Component {
                     <h2>Select Playlist To Delete</h2>
                     <div>
                         <select onChange={this.handleChange.bind(this)}>
-                            <option disabled selected value> -- select an option -- </option>
+                            <option disabled selected value> -- select an option --</option>
                             {this.state.playlists.map(playlist => <option value={playlist.id}
                                                                           key={playlist.id}>{playlist.name}</option>)}
                         </select>
                     </div>
-                    <button id="delete_playlist" className="btn btn-default" onClick={this.handleClick.bind(this)}>Delete</button>
+                    <button id="delete_playlist" className="btn btn-default" onClick={this.handleClick.bind(this)}>
+                        Delete
+                    </button>
                 </div>
             );
         }
@@ -540,18 +551,18 @@ class EditPlaylist extends React.Component {
 
 
     handleChange(event) {
-        this.setState({selected:event.target.value});
+        this.setState({selected: event.target.value});
     }
 
     handleSubmit() {
         if (this.state.selected == 0) {
             alert("Please select a playlist to delete.");
         }
-        else if (this.refs.playlistName.value == ""){
+        else if (this.refs.playlistName.value == "") {
             alert("You did not set a new name!");
         }
-        else{
-            fetch("http://127.0.0.1:5000/api/v1/playlists/"+this.state.selected+"/", {
+        else {
+            fetch("http://127.0.0.1:5000/api/v1/playlists/" + this.state.selected + "/", {
                 method: "PUT",
                 headers: {
                     "Authorization": localStorage.getItem("token"),
@@ -567,7 +578,7 @@ class EditPlaylist extends React.Component {
                         alert("This playlist is not yours!");
                         return;
                     }
-                    else if (response.status == 404){
+                    else if (response.status == 404) {
                         alert("Playlist not found.");
                         return;
                     }
@@ -576,7 +587,7 @@ class EditPlaylist extends React.Component {
                         window.location.reload();
                         return;
                     }
-                    else{
+                    else {
                         alert("Could not update playlist.");
                         return;
                     }
@@ -593,7 +604,7 @@ class EditPlaylist extends React.Component {
                     <h2>Select Playlist to change name</h2>
                     <div>
                         <select onChange={this.handleChange.bind(this)}>
-                            <option disabled selected value> -- select an option -- </option>
+                            <option disabled selected value> -- select an option --</option>
                             {this.state.playlists.map(playlist => <option value={playlist.id}
                                                                           key={playlist.id}>{playlist.name}</option>)}
                         </select>
@@ -648,23 +659,23 @@ class ListMyPlaylists extends React.Component {
     }
 
     handleChange(event) {
-        if (event.target.value == "ascending name"){
-            this.setState({playlists:window.sortAscendingByKey(this.state.playlists, "name")});
+        if (event.target.value == "ascending name") {
+            this.setState({playlists: window.sortAscendingByKey(this.state.playlists, "name")});
         }
-        else if (event.target.value == "descending name"){
-            this.setState({playlists:window.sortDescendingByKey(this.state.playlists, "name")});
+        else if (event.target.value == "descending name") {
+            this.setState({playlists: window.sortDescendingByKey(this.state.playlists, "name")});
         }
-        else if (event.target.value == "ascending size"){
-            this.setState({playlists:window.sortAscendingByKey(this.state.playlists, "size")});
+        else if (event.target.value == "ascending size") {
+            this.setState({playlists: window.sortAscendingByKey(this.state.playlists, "size")});
         }
-        else if (event.target.value == "descending size"){
-            this.setState({playlists:window.sortDescendingByKey(this.state.playlists, "size")});
+        else if (event.target.value == "descending size") {
+            this.setState({playlists: window.sortDescendingByKey(this.state.playlists, "size")});
         }
-        else if (event.target.value == "ascending date"){
-            this.setState({playlists:window.sortAscendingByKey(this.state.playlists, "createdAt")});
+        else if (event.target.value == "ascending date") {
+            this.setState({playlists: window.sortAscendingByKey(this.state.playlists, "createdAt")});
         }
-        else if (event.target.value == "descending date"){
-            this.setState({playlists:window.sortDescendingByKey(this.state.playlists, "createdAt")});
+        else if (event.target.value == "descending date") {
+            this.setState({playlists: window.sortDescendingByKey(this.state.playlists, "createdAt")});
         }
     }
 
@@ -676,7 +687,7 @@ class ListMyPlaylists extends React.Component {
                     <h2>List My Playlists by</h2>
                     <div>
                         <select onChange={this.handleChange.bind(this)}>
-                            <option disabled selected value> -- select an option -- </option>
+                            <option disabled selected value> -- select an option --</option>
                             <option value="ascending name">Ascending Name</option>
                             <option value="descending name">Descending Name</option>
                             <option value="ascending size">Ascending Size</option>
@@ -687,8 +698,464 @@ class ListMyPlaylists extends React.Component {
                     </div>
                     <h3>Playlists</h3>
                     <ul className="playlists">
-                        {this.state.playlists.map(playlist=><li key={playlist.id}><p>{playlist.name}</p>
-                        <p>{playlist.size} musics</p><p>Created at: {playlist.createdAt}</p></li>)}
+                        {this.state.playlists.map(playlist => <li key={playlist.id}><p><b>Name: </b>{playlist.name}</p>
+                            <p><b>Size: </b>{playlist.size} musics</p><p><b>Creation Date: </b>{playlist.createdAt}</p>
+                        </li>)}
+                    </ul>
+                </div>
+            );
+        }
+        else {
+            return (
+                <h2>Choose one of the options above!</h2>
+            );
+        }
+    }
+
+    render() {
+        return (
+            this.checkCookie()
+        );
+    }
+}
+
+//------------------------ UploadSong ------------------------//
+
+class UploadSong extends React.Component {
+    constructor() {
+        super();
+        this.state = {form: ""};
+    }
+
+    handleSubmit() {
+        if (this.refs.songTitle.value == "" || this.refs.songArtist.value == "" || this.refs.songAlbum.value == "" || this.refs.songYear.value == "" || this.refs.songFile.value == "") {
+            alert("Please fill all the fields.");
+        }
+        else {
+            let formdata = new FormData();
+            formdata.append("title", this.refs.songTitle.value);
+            formdata.append("artist", this.refs.songArtist.value);
+            formdata.append("album", this.refs.songAlbum.value);
+            formdata.append("releaseYear", this.refs.songYear.value);
+            formdata.append("file", this.refs.songFile.files[0]);
+            fetch("http://127.0.0.1:5000/api/v1/songs/", {
+                method: "POST",
+                headers: {
+                    "Authorization": localStorage.getItem("token"),
+                    "Accept": "application/json",
+                },
+                body: formdata,
+            })
+                .then(response => response.status)
+                .then(code => {
+                    if (code == 200) {
+                        alert("Song successfully uploaded!");
+                        window.location.reload();
+                    }
+                    else if (code == 400) {
+                        alert("Invalid file extension!");
+                    }
+                    else {
+                        alert("Could not upload song.");
+                    }
+                });
+        }
+    }
+
+    checkCookie() {
+        if (localStorage.getItem("token") != null) {
+            return (
+                <div id="create_playlist">
+                    <h2>Upload Song</h2>
+                    <form id="upload_song_form" onSubmit={this.handleSubmit.bind(this)}>
+                        <div className="form-group">
+                            <h4>Title:</h4>
+                            <input type="text" className="form-control" ref="songTitle"
+                                   placeholder="Enter title"/>
+                        </div>
+                        <div className="form-group">
+                            <h4>Artist:</h4>
+                            <input type="text" className="form-control" ref="songArtist"
+                                   placeholder="Enter artist"/>
+                        </div>
+                        <div className="form-group">
+                            <h4>Album:</h4>
+                            <input type="text" className="form-control" ref="songAlbum"
+                                   placeholder="Enter album"/>
+                        </div>
+                        <div className="form-group">
+                            <h4>Release Year:</h4>
+                            <input type="number" className="form-control" ref="songYear"
+                                   placeholder="Enter year"/>
+                        </div>
+                        <div className="form-group">
+                            <h4>File of the song:</h4>
+                            <input type="file" ref="songFile" accept=".mp3,.wav"/>
+                        </div>
+                        <button type="submit" className="btn btn-default">Submit</button>
+                    </form>
+                </div>
+            );
+        }
+        else {
+            return (
+                <h2>Choose one of the options above!</h2>
+            );
+        }
+    }
+
+    render() {
+        return (
+            this.checkCookie()
+        );
+    }
+}
+
+//------------------------ DeleteSong ------------------------//
+
+class DeleteSong extends React.Component {
+    constructor() {
+        super();
+        this.state = {selected: 0};
+        this.state = {songs: []};
+    }
+
+    componentDidMount() {
+        if (localStorage.getItem("token") != null) {
+            fetch("http://127.0.0.1:5000/api/v1/users/self/songs/", {
+                method: "GET",
+                headers: {
+                    "Authorization": localStorage.getItem("token"),
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                }
+            })
+                .then(result => result.json())
+                .then(items => this.setState({songs: items}));
+        }
+    }
+
+
+    handleChange(event) {
+        this.setState({selected: event.target.value});
+    }
+
+    handleClick() {
+        if (this.state.selected == 0) {
+            alert("Please select a song to delete.");
+        }
+        else {
+            fetch("http://127.0.0.1:5000/api/v1/songs/" + this.state.selected + "/", {
+                method: "DELETE",
+                headers: {
+                    "Authorization": localStorage.getItem("token"),
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                }
+            })
+                .then(response => {
+                    if (response.status == 403) {
+                        alert("This song is not yours!");
+                        return;
+                    }
+                    else if (response.status == 404) {
+                        alert("Song not found.");
+                        return;
+                    }
+                    else if (response.status == 200) {
+                        alert("Song deleted.");
+                        window.location.reload();
+                        return;
+                    }
+                    else {
+                        alert("Could not delete song.");
+                        return;
+                    }
+
+                });
+        }
+    }
+
+    checkCookie() {
+        if (localStorage.getItem("token") != null) {
+
+            return (
+                <div id="delete_song">
+                    <h2>Select Song To Delete</h2>
+                    <div>
+                        <select onChange={this.handleChange.bind(this)}>
+                            <option disabled selected value> -- select an option --</option>
+                            {this.state.songs.map(song => <option value={song.id}
+                                                                  key={song.id}>{song.title}</option>)}
+                        </select>
+                    </div>
+                    <button id="delete_song" className="btn btn-default" onClick={this.handleClick.bind(this)}>Delete
+                    </button>
+                </div>
+            );
+        }
+        else {
+            return (
+                <h2>Choose one of the options above!</h2>
+            );
+        }
+    }
+
+    render() {
+        return (
+            this.checkCookie()
+        );
+    }
+}
+
+//------------------------ EditSong ------------------------//
+
+class EditSong extends React.Component {
+    constructor() {
+        super();
+        this.state = {selected: 0};
+        this.state = {songs: []};
+    }
+
+    componentDidMount() {
+        if (localStorage.getItem("token") != null) {
+            fetch("http://127.0.0.1:5000/api/v1/users/self/songs/", {
+                method: "GET",
+                headers: {
+                    "Authorization": localStorage.getItem("token"),
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                }
+            })
+                .then(result => result.json())
+                .then(items => this.setState({songs: items}));
+        }
+    }
+
+
+    handleChange(event) {
+        this.setState({selected: event.target.value});
+    }
+
+    handleSubmit() {
+        if (this.state.selected == 0) {
+            alert("Please select a song to delete.");
+        }
+        else {
+            let formdata = new FormData();
+            if (this.refs.songTitle.value != "") {
+                formdata.append("title", this.refs.songTitle.value);
+            }
+            if (this.refs.songArtist.value != "") {
+                formdata.append("artist", this.refs.songArtist.value);
+            }
+            if (this.refs.songAlbum.value != "") {
+                formdata.append("album", this.refs.songAlbum.value);
+            }
+            if (this.refs.songYear.value != "") {
+                formdata.append("releaseYear", this.refs.songYear.value);
+            }
+            if (this.refs.songFile.value != "") {
+                formdata.append("file", this.refs.songFile.files[0]);
+            }
+            fetch("http://127.0.0.1:5000/api/v1/songs/" + this.state.selected + "/", {
+                method: "PUT",
+                headers: {
+                    "Authorization": localStorage.getItem("token"),
+                    "Accept": "application/json",
+                },
+                body: formdata,
+            })
+                .then(response => {
+                    if (response.status == 403) {
+                        alert("This song is not yours!");
+                        return;
+                    }
+                    else if (response.status == 404) {
+                        alert("Song not found.");
+                        return;
+                    }
+                    else if (response.status == 200) {
+                        alert("Song updated.");
+                        window.location.reload();
+                        return;
+                    }
+                    else {
+                        alert("Could not update song.");
+                        return;
+                    }
+
+                });
+        }
+    }
+
+    checkCookie() {
+        if (localStorage.getItem("token") != null) {
+
+            return (
+                <div id="edit_song">
+                    <h2>Select Song to edit</h2>
+                    <div>
+                        <select onChange={this.handleChange.bind(this)}>
+                            <option disabled selected value> -- select an option --</option>
+                            {this.state.songs.map(song => <option value={song.id}
+                                                                  key={song.id}>{song.title}</option>)}
+                        </select>
+                    </div>
+                    <form id="edit_song_form" onSubmit={this.handleSubmit.bind(this)}>
+                        <div className="form-group">
+                            <h4>New Title:</h4>
+                            <input type="text" className="form-control" ref="songTitle"
+                                   placeholder="Enter title"/>
+                        </div>
+                        <div className="form-group">
+                            <h4>New Artist:</h4>
+                            <input type="text" className="form-control" ref="songArtist"
+                                   placeholder="Enter artist"/>
+                        </div>
+                        <div className="form-group">
+                            <h4>New Album:</h4>
+                            <input type="text" className="form-control" ref="songAlbum"
+                                   placeholder="Enter album"/>
+                        </div>
+                        <div className="form-group">
+                            <h4>New Release Year:</h4>
+                            <input type="number" className="form-control" ref="songYear"
+                                   placeholder="Enter year"/>
+                        </div>
+                        <div className="form-group">
+                            <h4>New File of the song:</h4>
+                            <input type="file" ref="songFile" accept=".mp3,.wav"/>
+                        </div>
+                        <button type="submit" className="btn btn-default">Submit</button>
+                    </form>
+                </div>
+            );
+        }
+        else {
+            return (
+                <h2>Choose one of the options above!</h2>
+            );
+        }
+    }
+
+    render() {
+        return (
+            this.checkCookie()
+        );
+    }
+}
+
+//------------------------ ListSongs ------------------------//
+
+class ListSongs extends React.Component {
+    constructor() {
+        super();
+        this.state = {selected: "ascending name"};
+        this.state = {songs: []};
+    }
+
+    componentDidMount() {
+        if (localStorage.getItem("token") != null) {
+            fetch("http://127.0.0.1:5000/api/v1/songs", {
+                method: "GET",
+                headers: {
+                    "Authorization": localStorage.getItem("token"),
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                }
+            })
+                .then(result => result.json())
+                .then(items => this.setState({songs: items}));
+        }
+    }
+
+    checkCookie() {
+        if (localStorage.getItem("token") != null) {
+
+            return (
+                <div id="edit_playlist">
+                    <h2>List Of All Songs In Soundshare</h2>
+                    <ul className="songs">
+                        {this.state.songs.map(song => <li key={song.id}><p><b>Title: </b>{song.title}</p>
+                            <p><b>Artist: </b>{song.artist}</p><p><b>Album: </b>{song.album}</p><p><b>Release
+                                Year: </b>{song.releaseYear}</p></li>)}
+                    </ul>
+                </div>
+            );
+        }
+        else {
+            return (
+                <h2>Choose one of the options above!</h2>
+            );
+        }
+    }
+
+    render() {
+        return (
+            this.checkCookie()
+        );
+    }
+}
+
+//------------------------ FindSongs ------------------------//
+
+class FindSongs extends React.Component {
+    constructor() {
+        super();
+        this.state = {songs: []};
+    }
+
+    handleSubmit() {
+        let args = "";
+        if (this.refs.songTitle.value == "" && this.refs.songArtist.value == "") {
+            alert("Please fill one of the fields.");
+        }
+        else if (this.refs.songTitle.value != "" && this.refs.songArtist.value != "") {
+            args = "?title=" + this.refs.songTitle.value + "&artist=" + this.refs.songArtist.value;
+        }
+        else if (this.refs.songTitle.value != "" && this.refs.songArtist.value == "") {
+            args = "?title=" + this.refs.songTitle.value;
+        }
+        else if (this.refs.songTitle.value == "" && this.refs.songArtist.value != "") {
+            args = "?artist=" + this.refs.songArtist.value;
+        }
+        fetch("http://127.0.0.1:5000/api/v1/songs" + args, {
+            method: "GET",
+            headers: {
+                "Authorization": localStorage.getItem("token"),
+                "Accept": "application/json",
+
+            }
+        })
+            .then(result => result.json())
+            .then(items => this.setState({songs: items}));
+    }
+
+
+    checkCookie() {
+        if (localStorage.getItem("token") != null) {
+            return (
+                <div id="create_playlist">
+                    <h2>Search Songs By:</h2>
+                    <form id="search_song_form" onSubmit={this.handleSubmit.bind(this)}>
+                        <div className="form-group">
+                            <h4>Title:</h4>
+                            <input type="text" className="form-control" ref="songTitle"
+                                   placeholder="Enter title"/>
+                        </div>
+                        <div className="form-group">
+                            <h4>Artist:</h4>
+                            <input type="text" className="form-control" ref="songArtist"
+                                   placeholder="Enter artist"/>
+                        </div>
+                        <button type="submit" className="btn btn-default">Search</button>
+                    </form>
+                    <h2>Results</h2>
+                    <ul className="songs">
+                        {this.state.songs.map(song => <li key={song.id}><p><b>Title: </b>{song.title}</p>
+                            <p><b>Artist: </b>{song.artist}</p><p><b>Album: </b>{song.album}</p><p><b>Release
+                                Year: </b>{song.releaseYear}</p></li>)}
                     </ul>
                 </div>
             );
@@ -720,6 +1187,11 @@ ReactDOM.render(
             <Route path="editPlaylist" component={EditPlaylist}/>
             <Route path="listMyPlaylists" component={ListMyPlaylists}/>
             <Route path="deletePlaylist" component={DeletePlaylist}/>
+            <Route path="uploadSong" component={UploadSong}/>
+            <Route path="deleteSong" component={DeleteSong}/>
+            <Route path="editSong" component={EditSong}/>
+            <Route path="listSongs" component={ListSongs}/>
+            <Route path="findSongs" component={FindSongs}/>
         </ReactRouter.Route>
     </ReactRouter.Router>,
     container);

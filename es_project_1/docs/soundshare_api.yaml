@@ -109,6 +109,60 @@ paths:
           description: Unexpected error
           schema:
             $ref: '#/definitions/Error'
+  /users/{userId}:
+    put:
+      summary: Update user
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: userId
+          in: path
+          description: Id of the user
+          required: true
+          type: integer
+        - name: firstName
+          in: formData
+          description: First name of the user
+          required: false
+          type: string
+        - name: lastName
+          in: formData
+          description: Last name of the user
+          required: false
+          type: string
+        - name: password
+          in: formData
+          description: Password of the user
+          required: false
+          type: string
+          format: password
+      tags:
+        - Users
+      security:
+        - tokenAuth: []
+      responses:
+        204:
+          description: User successfully edited
+        400:
+          description: Bad request
+          schema:
+            $ref: '#/definitions/Error' 
+        401:
+          description: Unauthorized. Please fill up the 'Authorization' header
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden. You have to be authenticated as the proper user to update it.
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: User not found
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
   /users/self/tokens:
     post:
       summary: Get user's token
