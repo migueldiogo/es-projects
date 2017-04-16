@@ -1,5 +1,3 @@
-import base64
-import tempfile
 from functools import wraps
 
 from flask import Flask, jsonify
@@ -15,7 +13,7 @@ from serializers import UserSerializer, SongSerializer, PlaylistSerializer
 import utils
 import aws
 
-app = Flask(__name__)
+application = Flask(__name__)
 
 REST_PREFIX = '/api/v1'
 
@@ -36,12 +34,12 @@ def requires_auth(f):
     return decorated
 
 
-@app.route('/')
+@application.route('/')
 def hello_world():
     return render_template("login.html")
 
 
-@app.route(REST_PREFIX + '/users/', methods = ['POST'])
+@application.route(REST_PREFIX + '/users/', methods = ['POST'])
 def create_user():
     data = request.get_json()
     
@@ -59,7 +57,7 @@ def create_user():
         return Response(status = 200)
 
 
-@app.route(REST_PREFIX + '/users/self/<int:user_id>/', methods = ['PUT'])
+@application.route(REST_PREFIX + '/users/self/<int:user_id>/', methods = ['PUT'])
 @requires_auth
 def update_user(user, user_id):
     data = request.get_json()
@@ -73,13 +71,13 @@ def update_user(user, user_id):
     return Response(status = 200)
 
 
-@app.route(REST_PREFIX + '/users/self/', methods = ['GET'])
+@application.route(REST_PREFIX + '/users/self/', methods = ['GET'])
 @requires_auth
 def get_user(user):
     return jsonify(UserSerializer.serialize(user))
 
 
-@app.route(REST_PREFIX + '/users/self/', methods = ['DELETE'])
+@application.route(REST_PREFIX + '/users/self/', methods = ['DELETE'])
 @requires_auth
 def delete_user(user):
     # if there isn't any super user, create one
@@ -87,7 +85,7 @@ def delete_user(user):
     return Response(status = 200)
 
 
-@app.route(REST_PREFIX + '/users/self/tokens/', methods = ['POST'])
+@application.route(REST_PREFIX + '/users/self/tokens/', methods = ['POST'])
 def get_token():
     data = request.get_json()
     
@@ -107,7 +105,7 @@ def get_token():
     return jsonify(result)
 
 
-@app.route(REST_PREFIX + '/users/self/songs/', methods = ['GET'])
+@application.route(REST_PREFIX + '/users/self/songs/', methods = ['GET'])
 @requires_auth
 def get_user_songs(user):
     args = request.args
@@ -121,7 +119,7 @@ def get_user_songs(user):
     return jsonify(SongSerializer.serialize(data, many = True))
 
 
-@app.route(REST_PREFIX + '/users/self/playlists/', methods = ['GET'])
+@application.route(REST_PREFIX + '/users/self/playlists/', methods = ['GET'])
 @requires_auth
 def get_user_playlists(user):
     args = request.args
@@ -135,7 +133,7 @@ def get_user_playlists(user):
     return jsonify(PlaylistSerializer.serialize(data, many = True))
 
 
-@app.route(REST_PREFIX + '/songs', methods = ['GET'])
+@application.route(REST_PREFIX + '/songs', methods = ['GET'])
 @requires_auth
 def get_songs(user):
     args = request.args
@@ -152,7 +150,7 @@ def get_songs(user):
     return jsonify(SongSerializer.serialize(data, many = True))
 
 
-@app.route(REST_PREFIX + '/songs/', methods = ['POST'])
+@application.route(REST_PREFIX + '/songs/', methods = ['POST'])
 @requires_auth
 def create_song(user):
     form = request.form
@@ -167,8 +165,7 @@ def create_song(user):
     
     song_new_filename = utils.generate_uuid()
     
-    #song_url = aws.upload_song(song_new_filename, file_extension, song_file)
-    song_url = "/" + filename
+    song_url = aws.upload_song(song_new_filename, file_extension, song_file)
     
     crud_song.create_song(user_id = user.id,
                           song_title = form['title'],
@@ -180,7 +177,7 @@ def create_song(user):
     return Response(status = 200)
 
 
-@app.route(REST_PREFIX + '/songs/<int:song_id>/', methods = ['GET'])
+@application.route(REST_PREFIX + '/songs/<int:song_id>/', methods = ['GET'])
 @requires_auth
 def get_song(user, song_id):
     song = crud_song.get_song(song_id = song_id)
@@ -190,7 +187,7 @@ def get_song(user, song_id):
     return jsonify(SongSerializer.serialize(song))
 
 
-@app.route(REST_PREFIX + '/songs/<int:song_id>/', methods = ['DELETE'])
+@application.route(REST_PREFIX + '/songs/<int:song_id>/', methods = ['DELETE'])
 @requires_auth
 def delete_song(user, song_id):
     # if there isn't any super user, create one
@@ -212,7 +209,7 @@ def delete_song(user, song_id):
     return Response(status = 200)
 
 
-@app.route(REST_PREFIX + '/songs/<int:song_id>/', methods = ['PUT'])
+@application.route(REST_PREFIX + '/songs/<int:song_id>/', methods = ['PUT'])
 @requires_auth
 def update_song(user, song_id):
     form = request.form
@@ -248,7 +245,7 @@ def update_song(user, song_id):
     return Response(status = 200)
 
 
-@app.route(REST_PREFIX + '/playlists/', methods = ['POST'])
+@application.route(REST_PREFIX + '/playlists/', methods = ['POST'])
 @requires_auth
 def create_playlist(user):
     data = request.get_json()
@@ -258,7 +255,7 @@ def create_playlist(user):
     return Response(status = 200)
 
 
-@app.route(REST_PREFIX + '/playlists/<int:playlist_id>/', methods = ['DELETE'])
+@application.route(REST_PREFIX + '/playlists/<int:playlist_id>/', methods = ['DELETE'])
 @requires_auth
 def delete_playlist(user, playlist_id):
     playlist = crud_playlist.get_playlist(playlist_id = playlist_id)
@@ -272,7 +269,7 @@ def delete_playlist(user, playlist_id):
     return Response(status = 200)
 
 
-@app.route(REST_PREFIX + '/playlists/<int:playlist_id>/', methods = ['PUT'])
+@application.route(REST_PREFIX + '/playlists/<int:playlist_id>/', methods = ['PUT'])
 @requires_auth
 def update_playlist(user, playlist_id):
     data = request.get_json()
@@ -291,7 +288,7 @@ def update_playlist(user, playlist_id):
     return Response(status = 200)
 
 
-@app.route(REST_PREFIX + '/playlists/<int:playlist_id>/songs/', methods = ['GET'])
+@application.route(REST_PREFIX + '/playlists/<int:playlist_id>/songs/', methods = ['GET'])
 @requires_auth
 def get_songs_from_playlist(user, playlist_id):
     args = request.args
@@ -316,7 +313,7 @@ def get_songs_from_playlist(user, playlist_id):
     return jsonify(SongSerializer.serialize(data, many = True))
 
 
-@app.route(REST_PREFIX + '/playlists/<int:playlist_id>/songs/<int:song_id>/', methods = ['POST'])
+@application.route(REST_PREFIX + '/playlists/<int:playlist_id>/songs/<int:song_id>/', methods = ['POST'])
 @requires_auth
 def add_song_to_playlist(user, playlist_id, song_id):
     playlist = crud_playlist.get_playlist(playlist_id = playlist_id)
@@ -336,7 +333,7 @@ def add_song_to_playlist(user, playlist_id, song_id):
     return Response(status = 200)
 
 
-@app.route(REST_PREFIX + '/playlists/<int:playlist_id>/songs/<int:song_id>/', methods = ['DELETE'])
+@application.route(REST_PREFIX + '/playlists/<int:playlist_id>/songs/<int:song_id>/', methods = ['DELETE'])
 @requires_auth
 def remove_song_from_playlist(user, playlist_id, song_id):
     playlist = crud_playlist.get_playlist(playlist_id = playlist_id)
@@ -363,7 +360,7 @@ def fibonacci(n):
     return fibonacci(n - 1) + fibonacci(n - 2)
 
 
-@app.route(REST_PREFIX + '/computefibonacci/', methods = ['GET'])
+@application.route(REST_PREFIX + '/computefibonacci/', methods = ['GET'])
 def compute_fibonacci():
     try:
         n = int(request.args['n'])
@@ -390,7 +387,7 @@ def create_secure_user(first_name: str, last_name: str, email: str, password: st
     return result
 
 
-@app.errorhandler(400)
+@application.errorhandler(400)
 def bad_request(error = None):
     message = {
         'code': 400,
@@ -402,7 +399,7 @@ def bad_request(error = None):
     return resp
 
 
-@app.errorhandler(401)
+@application.errorhandler(401)
 def unauthorized(error = None):
     message = {
         'code': 401,
@@ -414,7 +411,7 @@ def unauthorized(error = None):
     return resp
 
 
-@app.errorhandler(403)
+@application.errorhandler(403)
 def unauthorized(error = None):
     message = {
         'code': 403,
@@ -426,7 +423,7 @@ def unauthorized(error = None):
     return resp
 
 
-@app.errorhandler(404)
+@application.errorhandler(404)
 def not_found(error = None):
     message = {
         'code': 404,
@@ -439,4 +436,4 @@ def not_found(error = None):
 
 
 if __name__ == '__main__':
-    app.run()
+    application.run()

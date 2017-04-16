@@ -7,6 +7,8 @@ var {
     Link
 } = ReactRouter;
 
+var SERVER_URL = "http://soundshare-env.tspig2m4ea.eu-west-1.elasticbeanstalk.com"
+
 //------------------------ App ------------------------//
 
 class App extends React.Component {
@@ -110,7 +112,7 @@ class Login extends React.Component {
             alert("Please fill all the fields.");
         }
         else {
-            fetch("http://127.0.0.1:5000/api/v1/users/self/tokens/", {
+            fetch(SERVER_URL + "/api/v1/users/self/tokens/", {
                 method: "POST",
                 headers: {
                     "Accept": "application/json",
@@ -198,7 +200,7 @@ class Register extends React.Component {
             alert("Please fill all the fields.");
         }
         else {
-            fetch("http://127.0.0.1:5000/api/v1/users/", {
+            fetch(SERVER_URL + "/api/v1/users/", {
                 method: "POST",
                 headers: {
                     "Accept": "application/json",
@@ -279,7 +281,7 @@ class UpdateUser extends React.Component {
     }
 
     getUserId() {
-        fetch("http://127.0.0.1:5000/api/v1/users/self/", {
+        fetch(SERVER_URL + "/api/v1/users/self/", {
             method: "GET",
             headers: {
                 "Authorization": localStorage.getItem("token"),
@@ -332,7 +334,7 @@ class UpdateUser extends React.Component {
     }
 
     handleSubmit(event) {
-        fetch("http://127.0.0.1:5000/api/v1/users/self/" + this.state.id + "/", {
+        fetch(SERVER_URL + "/api/v1/users/self/" + this.state.id + "/", {
             method: "PUT",
             headers: {
                 "Authorization": localStorage.getItem("token"),
@@ -375,7 +377,7 @@ class CreatePlaylist extends React.Component {
             alert("Please fill all the fields.");
         }
         else {
-            fetch("http://127.0.0.1:5000/api/v1/playlists/", {
+            fetch(SERVER_URL + "/api/v1/playlists/", {
                 method: "POST",
                 headers: {
                     "Authorization": localStorage.getItem("token"),
@@ -440,7 +442,7 @@ class DeletePlaylist extends React.Component {
 
     componentDidMount() {
         if (localStorage.getItem("token") != null) {
-            fetch("http://127.0.0.1:5000/api/v1/users/self/playlists/", {
+            fetch(SERVER_URL + "/api/v1/users/self/playlists/", {
                 method: "GET",
                 headers: {
                     "Authorization": localStorage.getItem("token"),
@@ -463,7 +465,7 @@ class DeletePlaylist extends React.Component {
             alert("Please select a playlist to delete.");
         }
         else {
-            fetch("http://127.0.0.1:5000/api/v1/playlists/" + this.state.selected + "/", {
+            fetch(SERVER_URL + "/api/v1/playlists/" + this.state.selected + "/", {
                 method: "DELETE",
                 headers: {
                     "Authorization": localStorage.getItem("token"),
@@ -538,7 +540,7 @@ class EditPlaylist extends React.Component {
 
     componentDidMount() {
         if (localStorage.getItem("token") != null) {
-            fetch("http://127.0.0.1:5000/api/v1/users/self/playlists/", {
+            fetch(SERVER_URL + "/api/v1/users/self/playlists/", {
                 method: "GET",
                 headers: {
                     "Authorization": localStorage.getItem("token"),
@@ -564,7 +566,7 @@ class EditPlaylist extends React.Component {
             alert("You did not set a new name!");
         }
         else {
-            fetch("http://127.0.0.1:5000/api/v1/playlists/" + this.state.selected + "/", {
+            fetch(SERVER_URL + "/api/v1/playlists/" + this.state.selected + "/", {
                 method: "PUT",
                 headers: {
                     "Authorization": localStorage.getItem("token"),
@@ -647,7 +649,7 @@ class ListMyPlaylists extends React.Component {
 
     componentDidMount() {
         if (localStorage.getItem("token") != null) {
-            fetch("http://127.0.0.1:5000/api/v1/users/self/playlists/", {
+            fetch(SERVER_URL + "/api/v1/users/self/playlists/", {
                 method: "GET",
                 headers: {
                     "Authorization": localStorage.getItem("token"),
@@ -740,7 +742,7 @@ class UploadSong extends React.Component {
             formdata.append("album", this.refs.songAlbum.value);
             formdata.append("releaseYear", this.refs.songYear.value);
             formdata.append("file", this.refs.songFile.files[0]);
-            fetch("http://127.0.0.1:5000/api/v1/songs/", {
+            fetch(SERVER_URL + "/api/v1/songs/", {
                 method: "POST",
                 headers: {
                     "Authorization": localStorage.getItem("token"),
@@ -824,7 +826,7 @@ class DeleteSong extends React.Component {
 
     componentDidMount() {
         if (localStorage.getItem("token") != null) {
-            fetch("http://127.0.0.1:5000/api/v1/users/self/songs/", {
+            fetch(SERVER_URL + "/api/v1/users/self/songs/", {
                 method: "GET",
                 headers: {
                     "Authorization": localStorage.getItem("token"),
@@ -847,7 +849,7 @@ class DeleteSong extends React.Component {
             alert("Please select a song to delete.");
         }
         else {
-            fetch("http://127.0.0.1:5000/api/v1/songs/" + this.state.selected + "/", {
+            fetch(SERVER_URL + "/api/v1/songs/" + this.state.selected + "/", {
                 method: "DELETE",
                 headers: {
                     "Authorization": localStorage.getItem("token"),
@@ -921,7 +923,7 @@ class EditSong extends React.Component {
 
     componentDidMount() {
         if (localStorage.getItem("token") != null) {
-            fetch("http://127.0.0.1:5000/api/v1/users/self/songs/", {
+            fetch(SERVER_URL + "/api/v1/users/self/songs/", {
                 method: "GET",
                 headers: {
                     "Authorization": localStorage.getItem("token"),
@@ -960,7 +962,7 @@ class EditSong extends React.Component {
             if (this.refs.songFile.value != "") {
                 formdata.append("file", this.refs.songFile.files[0]);
             }
-            fetch("http://127.0.0.1:5000/api/v1/songs/" + this.state.selected + "/", {
+            fetch(SERVER_URL + "/api/v1/songs/" + this.state.selected + "/", {
                 method: "PUT",
                 headers: {
                     "Authorization": localStorage.getItem("token"),
@@ -1059,7 +1061,7 @@ class ListSongs extends React.Component {
 
     componentDidMount() {
         if (localStorage.getItem("token") != null) {
-            fetch("http://127.0.0.1:5000/api/v1/songs", {
+            fetch(SERVER_URL + "/api/v1/songs", {
                 method: "GET",
                 headers: {
                     "Authorization": localStorage.getItem("token"),
@@ -1069,7 +1071,7 @@ class ListSongs extends React.Component {
             })
                 .then(result => result.json())
                 .then(items => this.setState({songs: items}));
-            fetch("http://127.0.0.1:5000/api/v1/users/self/playlists/", {
+            fetch(SERVER_URL + "/api/v1/users/self/playlists/", {
                 method: "GET",
                 headers: {
                     "Authorization": localStorage.getItem("token"),
@@ -1087,7 +1089,7 @@ class ListSongs extends React.Component {
     }
 
     addSong(event) {
-        fetch("http://127.0.0.1:5000/api/v1/playlists/" + this.state.pSelected + "/songs/" + event.target.value + "/", {
+        fetch(SERVER_URL + "/api/v1/playlists/" + this.state.pSelected + "/songs/" + event.target.value + "/", {
             method: "POST",
             headers: {
                 "Authorization": localStorage.getItem("token"),
@@ -1169,7 +1171,7 @@ class FindSongs extends React.Component {
 
     componentDidMount() {
         if (localStorage.getItem("token") != null) {
-            fetch("http://127.0.0.1:5000/api/v1/users/self/playlists/", {
+            fetch(SERVER_URL + "/api/v1/users/self/playlists/", {
                 method: "GET",
                 headers: {
                     "Authorization": localStorage.getItem("token"),
@@ -1196,7 +1198,7 @@ class FindSongs extends React.Component {
         else if (this.refs.songTitle.value == "" && this.refs.songArtist.value != "") {
             args = "?artist=" + this.refs.songArtist.value;
         }
-        fetch("http://127.0.0.1:5000/api/v1/songs" + args, {
+        fetch(SERVER_URL + "/api/v1/songs" + args, {
             method: "GET",
             headers: {
                 "Authorization": localStorage.getItem("token"),
@@ -1213,7 +1215,7 @@ class FindSongs extends React.Component {
     }
 
     addSong(event) {
-        fetch("http://127.0.0.1:5000/api/v1/playlists/" + this.state.pSelected + "/songs/" + event.target.value + "/", {
+        fetch(SERVER_URL + "/api/v1/playlists/" + this.state.pSelected + "/songs/" + event.target.value + "/", {
             method: "POST",
             headers: {
                 "Authorization": localStorage.getItem("token"),
@@ -1308,7 +1310,7 @@ class SongsFromPlaylist extends React.Component {
 
     componentDidMount() {
         if (localStorage.getItem("token") != null) {
-            fetch("http://127.0.0.1:5000/api/v1/users/self/playlists/", {
+            fetch(SERVER_URL + "/api/v1/users/self/playlists/", {
                 method: "GET",
                 headers: {
                     "Authorization": localStorage.getItem("token"),
@@ -1318,7 +1320,7 @@ class SongsFromPlaylist extends React.Component {
             })
                 .then(resultP => resultP.json())
                 .then(itemsP => this.setState({playlists: itemsP}));
-            fetch("http://127.0.0.1:5000/api/v1/users/self/songs/", {
+            fetch(SERVER_URL + "/api/v1/users/self/songs/", {
                 method: "GET",
                 headers: {
                     "Authorization": localStorage.getItem("token"),
@@ -1334,7 +1336,7 @@ class SongsFromPlaylist extends React.Component {
 
     handleChange(event) {
         this.setState({pSelected: event.target.value});
-        fetch("http://127.0.0.1:5000/api/v1/playlists/" + event.target.value + "/songs/", {
+        fetch(SERVER_URL + "/api/v1/playlists/" + event.target.value + "/songs/", {
             method: "GET",
             headers: {
                 "Authorization": localStorage.getItem("token"),
@@ -1350,7 +1352,7 @@ class SongsFromPlaylist extends React.Component {
     }
 
     addSong(event) {
-        fetch("http://127.0.0.1:5000/api/v1/playlists/" + this.state.pSelected + "/songs/" + this.state.sSelected + "/", {
+        fetch(SERVER_URL + "/api/v1/playlists/" + this.state.pSelected + "/songs/" + this.state.sSelected + "/", {
             method: "POST",
             headers: {
                 "Authorization": localStorage.getItem("token"),
@@ -1379,7 +1381,7 @@ class SongsFromPlaylist extends React.Component {
 
     deleteSong(event) {
         console.log(event.target.value);
-        fetch("http://127.0.0.1:5000/api/v1/playlists/" + this.state.pSelected + "/songs/" + event.target.value + "/", {
+        fetch(SERVER_URL + "/api/v1/playlists/" + this.state.pSelected + "/songs/" + event.target.value + "/", {
             method: "DELETE",
             headers: {
                 "Authorization": localStorage.getItem("token"),
