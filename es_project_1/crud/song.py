@@ -1,8 +1,8 @@
-from crud import session
+from crud import Session
 from models import Song
 
 
-def create_song(user_id: int, song_title: str, song_artist: str, song_album: str, song_release_year: int, song_url: str) -> bool:
+def create_song(session: Session, user_id: int, song_title: str, song_artist: str, song_album: str, song_release_year: int, song_url: str) -> bool:
     song = Song(user_id = user_id,
                 title = song_title,
                 artist = song_artist,
@@ -14,7 +14,7 @@ def create_song(user_id: int, song_title: str, song_artist: str, song_album: str
     return True
 
 
-def update_song(song_id: int, song_title: str, song_album : str, song_release_year: int, song_url: str) -> bool:
+def update_song(session: Session, song_id: int, song_title: str, song_album : str, song_release_year: int, song_url: str) -> bool:
     song = session.query(Song).filter_by(id = song_id).first()
     if song:
         song.title = song_title if song_title else song.title
@@ -27,7 +27,7 @@ def update_song(song_id: int, song_title: str, song_album : str, song_release_ye
         return False
     
     
-def update_song(song_id: int, song_title: str, song_album : str, song_release_year: int, song_url: str) -> bool:
+def update_song(session: Session, song_id: int, song_title: str, song_album : str, song_release_year: int, song_url: str) -> bool:
     song = session.query(Song).filter_by(id = song_id).first()
     if song:
         song.title = song_title if song_title else song.title
@@ -41,7 +41,7 @@ def update_song(song_id: int, song_title: str, song_album : str, song_release_ye
         return False
     
     
-def update_song_ownership(song_id: int, new_owner_user_id: int) -> bool:
+def update_song_ownership(session: Session, song_id: int, new_owner_user_id: int) -> bool:
     song = session.query(Song).filter_by(id = song_id).first()
     if song:
         song.user_id = new_owner_user_id
@@ -51,17 +51,17 @@ def update_song_ownership(song_id: int, new_owner_user_id: int) -> bool:
         return False
     
     
-def update_song(song: Song) -> bool:
+def update_song(session: Session, song: Song) -> bool:
     session.add(song)
     session.commit()
     return True
 
 
-def get_song(song_id: int) -> Song:
+def get_song(session: Session, song_id: int) -> Song:
     return session.query(Song).filter_by(id = song_id).first()
 
 
-def get_all_songs_from_user(offset: int = 0, limit: int = 10, song_title: str = None, song_artist: str = None, user_id: int = None) -> list:
+def get_all_songs_from_user(session: Session, offset: int = 0, limit: int = 10, song_title: str = None, song_artist: str = None, user_id: int = None) -> list:
     if song_title and song_artist:
         songs_result = session.query(Song).filter_by(title = song_title, artist = song_artist, user_id = user_id)\
             .offset(offset)\
@@ -82,7 +82,7 @@ def get_all_songs_from_user(offset: int = 0, limit: int = 10, song_title: str = 
     return songs_result
 
 
-def get_all_songs(offset: int = 0, limit: int = 10, song_title: str = None, song_artist: str = None) -> list:
+def get_all_songs(session: Session, offset: int = 0, limit: int = 10, song_title: str = None, song_artist: str = None) -> list:
     if song_title and song_artist:
         songs_result = session.query(Song).filter_by(title = song_title, artist = song_artist)\
             .offset(offset)\
@@ -103,7 +103,7 @@ def get_all_songs(offset: int = 0, limit: int = 10, song_title: str = None, song
     return songs_result
 
 
-def get_all_songs_from_playlist(playlist_id: int, offset: int = 0, limit: int = 10, song_title: str = None, song_artist: str = None) -> list:
+def get_all_songs_from_playlist(session: Session, playlist_id: int, offset: int = 0, limit: int = 10, song_title: str = None, song_artist: str = None) -> list:
     if song_title and song_artist:
         songs_result = session.query(Song).filter(Song.title == song_title,
                                                  Song.artist == song_artist,

@@ -1,10 +1,11 @@
-from crud import session
+from crud import Session
 from sqlalchemy import exists
 
 from models import User
 
 
-def create_user(user_first_name: str,
+def create_user(session: Session,
+                user_first_name: str,
                 user_last_name:str,
                 user_email:str,
                 user_password:str,
@@ -25,7 +26,8 @@ def create_user(user_first_name: str,
     return True
 
 
-def update_user(user_id: str,
+def update_user(session: Session,
+                user_id: str,
                 user_first_name: str,
                 user_last_name:str,
                 user_email:str,
@@ -44,15 +46,15 @@ def update_user(user_id: str,
     return True
 
 
-def get_user_by_email(user_email: str) -> User:
+def get_user_by_email(session: Session, user_email: str) -> User:
     return session.query(User).filter_by(email = user_email).first()
 
 
-def get_user_by_token(user_auth_token: str) -> User:
+def get_user_by_token(session: Session, user_auth_token: str) -> User:
     return session.query(User).filter_by(auth_token = user_auth_token).first()
 
 
-def delete_user(user_id: str) -> bool:
+def delete_user(session: Session, user_id: str) -> bool:
     rows_affected = session.query(User).filter_by(id = user_id).delete()
     session.commit()
     return rows_affected > 0
