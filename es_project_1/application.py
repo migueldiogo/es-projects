@@ -29,7 +29,10 @@ def requires_auth(f):
         user = crud_user.get_user_by_token(session, token)
         
         if not user:
+            session.close()
             abort(401)
+            
+        session.close()
         return f(user, *args, **kwargs)
     
     return decorated
@@ -182,7 +185,6 @@ def create_song(user):
     filename, file_extension = os.path.splitext(song_file.filename)
     
     if file_extension != ".wav" and file_extension != ".mp3":
-        session.close()
         abort(400)
     
     song_new_filename = utils.generate_uuid()
