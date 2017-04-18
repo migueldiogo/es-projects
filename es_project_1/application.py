@@ -51,6 +51,7 @@ def create_user():
             data['lastName'],
             data['email'],
             data['password'])
+    session.close()
     
     if not result:
         return Response(status = 409,
@@ -72,6 +73,7 @@ def update_user(user, user_id):
     user.password_hashed = utils.hash_password(password_raw = user.password_hashed, salt = password_salt) if data[
                                                                                                                  'password'] != "" else user.password_hashed
     crud_user.update_user(session, user.id, user.first_name, user.last_name, None, user.password_hashed, password_salt)
+    session.close()
     return Response(status = 200)
 
 
@@ -87,6 +89,7 @@ def delete_user(user):
     # if there isn't any super user, create one
     session = Session()
     crud_user.delete_user(session, user.id)
+    session.close()
     return Response(status = 200)
 
 
@@ -98,15 +101,18 @@ def get_token():
     user = crud_user.get_user_by_email(session, data['email'])
     
     if not user:
+        session.close()
         abort(401)
     
     input_hash = utils.hash_password(data['password'], user.password_salt)
     right_hash = user.password_hashed
     
     if input_hash != right_hash:
+        session.close()
         abort(401)
     
     result = {'token': user.auth_token}
+    session.close()
     
     return jsonify(result)
 
@@ -124,6 +130,7 @@ def get_user_songs(user):
                                              offset = offset,
                                              limit = limit,
                                              user_id = user.id)
+    session.close()
     return jsonify(SongSerializer.serialize(data, many = True))
 
 
@@ -140,6 +147,7 @@ def get_user_playlists(user):
                                            offset = offset,
                                            limit = limit,
                                            user_id = user.id)
+    session.close()
     return jsonify(PlaylistSerializer.serialize(data, many = True))
 
 
@@ -159,6 +167,7 @@ def get_songs(user):
                                    limit = limit,
                                    song_title = title,
                                    song_artist = artist)
+    session.close()
     return jsonify(SongSerializer.serialize(data, many = True))
 
 
@@ -173,6 +182,7 @@ def create_song(user):
     filename, file_extension = os.path.splitext(song_file.filename)
     
     if file_extension != ".wav" and file_extension != ".mp3":
+        session.close()
         abort(400)
     
     song_new_filename = utils.generate_uuid()
@@ -187,6 +197,7 @@ def create_song(user):
                           song_album = form['album'],
                           song_release_year = int(form['releaseYear']),
                           song_url = song_url)
+    session.close()
     
     return Response(status = 200)
 
@@ -197,8 +208,9 @@ def get_song(user, song_id):
     session = Session()
     song = crud_song.get_song(session, song_id = song_id)
     if not song:
+        session.close()
         abort(404)
-    
+    session.close()
     return jsonify(SongSerializer.serialize(song))
 
 
@@ -216,12 +228,15 @@ def delete_song(user, song_id):
     
     song = crud_song.get_song(session, song_id = song_id)
     if not song:
+        session.close()
         abort(404)
     if song.user_id != user.id:
+        session.close()
         abort(403)
     
     crud_song.update_song_ownership(session, song_id, super_user.id)
-    
+    session.close()
+
     return Response(status = 200)
 
 
@@ -234,8 +249,10 @@ def update_song(user, song_id):
     song = crud_song.get_song(session, song_id = song_id)
     
     if not song:
+        session.close()
         abort(404)
     if song.user_id != user.id:
+        session.close()
         abort(403)
 
     song.title = form['title'] if 'title' in form else song.title
@@ -249,6 +266,7 @@ def update_song(user, song_id):
         filename, file_extension = os.path.splitext(song_file.filename)
         
         if file_extension != ".wav" and file_extension != ".mp3":
+            session.close()
             abort(400)
         
         song_new_filename = utils.generate_uuid()
@@ -256,6 +274,7 @@ def update_song(user, song_id):
         song.url = aws.upload_song(song_new_filename, file_extension, song_file)
 
     crud_song.update_song(session, song)
+    session.close()
     
     return Response(status = 200)
 
@@ -269,6 +288,7 @@ def create_playlist(user):
     crud_playlist.create_playlist(session,
                                   user_id = user.id,
                                   playlist_name = data['name'])
+    session.close()
     return Response(status = 200)
 
 
@@ -278,11 +298,14 @@ def delete_playlist(user, playlist_id):
     session = Session()
     playlist = crud_playlist.get_playlist(session, playlist_id = playlist_id)
     if not playlist:
+        session.close()
         abort(404)
     if playlist.user_id != user.id:
+        session.close()
         abort(403)
     
     crud_playlist.delete_playlist(session, playlist_id)
+    session.close()
     
     return Response(status = 200)
 
@@ -296,14 +319,17 @@ def update_playlist(user, playlist_id):
     session = Session()
     playlist = crud_playlist.get_playlist(session, playlist_id = playlist_id)
     if not playlist:
+        session.close()
         abort(404)
     if playlist.user_id != user.id:
+        session.close()
         abort(403)
     
     if playlist_name:
         playlist.name = playlist_name
         crud_playlist.update_playlist(session, playlist)
-    
+
+    session.close()
     return Response(status = 200)
 
 
@@ -315,9 +341,11 @@ def get_songs_from_playlist(user, playlist_id):
     playlist = crud_playlist.get_playlist(session, playlist_id = playlist_id)
     
     if not playlist:
+        session.close()
         abort(404)
     
     if playlist.user_id != user.id:
+        session.close()
         abort(403)
     
     offset = args.get('offset') if 'offset' in args else 0
@@ -331,6 +359,7 @@ def get_songs_from_playlist(user, playlist_id):
                                                  limit = limit,
                                                  song_title = title,
                                                  song_artist = artist)
+    session.close()
     return jsonify(SongSerializer.serialize(data, many = True))
 
 
@@ -340,17 +369,21 @@ def add_song_to_playlist(user, playlist_id, song_id):
     session = Session()
     playlist = crud_playlist.get_playlist(session, playlist_id = playlist_id)
     if not playlist:
+        session.close()
         abort(404)
     if playlist.user_id != user.id:
+        session.close()
         abort(403)
     
     song = crud_song.get_song(session, song_id = song_id)
     if not song:
+        session.close()
         abort(404)
     
     playlist.songs.append(song)
     playlist.size += 1
     crud_playlist.update_playlist(session, playlist)
+    session.close()
     
     return Response(status = 200)
 
@@ -361,18 +394,22 @@ def remove_song_from_playlist(user, playlist_id, song_id):
     session = Session()
     playlist = crud_playlist.get_playlist(session, playlist_id = playlist_id)
     if not playlist:
+        session.close()
         abort(404)
     if playlist.user_id != user.id:
+        session.close()
         abort(403)
     
     song = crud_song.get_song(session, song_id = song_id)
     if not song:
+        session.close()
         abort(404)
     
     playlist.songs.remove(song)
     playlist.size -= 1
     
     crud_playlist.update_playlist(session, playlist)
+    session.close()
     
     return Response(status = 200)
 
