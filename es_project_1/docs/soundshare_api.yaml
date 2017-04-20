@@ -262,7 +262,7 @@ paths:
           minimum: 0
         - name: limit
           in: query
-          description: Get n records from the record at the offset postition (inclusive)
+          description: Get n records from the record at the offset position (inclusive)
           required: false
           type: integer
           minimum: 1
@@ -293,7 +293,7 @@ paths:
           minimum: 0
         - name: limit
           in: query
-          description: Get n records from the record at the offset postition (inclusive)
+          description: Get n records from the record at the offset position (inclusive)
           required: false
           type: integer
           minimum: 1
@@ -654,7 +654,7 @@ paths:
           minimum: 0
         - name: limit
           in: query
-          description: Get n records from the record at the offset postition (inclusive)
+          description: Get n records from the record at the offset position (inclusive)
           required: false
           type: integer
           minimum: 1

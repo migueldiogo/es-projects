@@ -225,8 +225,9 @@ def delete_song(user, song_id):
     
     if not super_user:
         create_secure_user(session, first_name = "admin", last_name = "", email = "admin@admin.com", password = "admin")
-    else:
-        super_user = crud_user.get_user_by_email(session, "admin@admin.com")
+    
+    super_user = crud_user.get_user_by_email(session, "admin@admin.com")
+    
     
     song = crud_song.get_song(session, song_id = song_id)
     if not song:
