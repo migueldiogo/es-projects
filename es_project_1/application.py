@@ -89,8 +89,23 @@ def get_user(user):
 @application.route(REST_PREFIX + '/users/self/', methods = ['DELETE'])
 @requires_auth
 def delete_user(user):
-    # if there isn't any super user, create one
     session = Session()
+
+    data = crud_song.get_all_songs_from_user(session,
+                                             offset=0,
+                                             limit=10,
+                                             user_id=user.id)
+
+    super_user = crud_user.get_user_by_email(session, "admin@admin.com")
+
+    if not super_user:
+        create_secure_user(session, first_name="admin", last_name="", email="admin@admin.com", password="admin")
+
+    super_user = crud_user.get_user_by_email(session, "admin@admin.com")
+
+    for item in data:
+        crud_song.update_song_ownership(session, item.id, super_user.id)
+
     crud_user.delete_user(session, user.id)
     session.close()
     return Response(status = 200)
@@ -227,8 +242,7 @@ def delete_song(user, song_id):
         create_secure_user(session, first_name = "admin", last_name = "", email = "admin@admin.com", password = "admin")
     
     super_user = crud_user.get_user_by_email(session, "admin@admin.com")
-    
-    
+
     song = crud_song.get_song(session, song_id = song_id)
     if not song:
         session.close()

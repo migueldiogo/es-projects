@@ -131,6 +131,6 @@ def get_all_songs_from_playlist(session: Session, playlist_id: int, offset: int 
     return songs_result
 
 
-def delete_song(song_id: int) -> bool:
+def delete_song(session: Session, song_id: int) -> bool:
     rows_affected = session.query(Song).filter(Song.id == song_id).delete()
     return rows_affected > 0

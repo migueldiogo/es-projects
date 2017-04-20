@@ -42,6 +42,7 @@ class App extends React.Component {
                             </ul>
                         </li>
                         <li><Link to="/updateUser" activeClassName="active">Update User Information</Link></li>
+                        <li><Link to="/deleteUser" activeClassName="active">Delete Account</Link></li>
                         <li><Link to="/logout" activeClassName="active">Logout</Link></li>
                     </ul>
                     <div className="content">
@@ -262,6 +263,57 @@ class Logout extends React.Component {
     handleClick(event) {
         localStorage.removeItem("token");
         window.location.reload();
+    }
+
+    render() {
+        return (
+            this.checkCookie()
+        );
+    }
+}
+
+//------------------------ DeleteUser ------------------------//
+
+class DeleteUser extends React.Component {
+    constructor() {
+        super();
+    }
+
+    checkCookie() {
+        if (localStorage.getItem("token") != null) {
+            return (
+                <div id="logout">
+                    <h2>Do you really want to delete your account?</h2>
+                    <button className="btn btn-default" onClick={this.handleClick.bind(this)}>Delete</button>
+                </div>
+            );
+        }
+        else {
+            return (
+                <h2>Choose one of the options above!</h2>
+            );
+        }
+    }
+
+    handleClick(event) {
+        fetch(SERVER_URL + "/api/v1/users/self/", {
+            method: "DELETE",
+            headers: {
+                "Authorization": localStorage.getItem("token"),
+                "Accept": "application/json",
+            }
+        })
+            .then(response => response.status)
+            .then(code => {
+                if (code == 200) {
+                    alert("Account deleted.");
+                    localStorage.removeItem("token");
+                    window.location.reload();
+                }
+                else {
+                    alert("Could not delete account");
+                }
+            });
     }
 
     render() {
@@ -1477,6 +1529,7 @@ ReactDOM.render(
             <Route path="login" component={Login}/>
             <Route path="register" component={Register}/>
             <Route path="logout" component={Logout}/>
+            <Route path="deleteUser" component={DeleteUser}/>
             <Route path="updateUser" component={UpdateUser}/>
             <Route path="createPlaylist" component={CreatePlaylist}/>
             <Route path="editPlaylist" component={EditPlaylist}/>
