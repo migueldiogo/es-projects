@@ -18,11 +18,10 @@ dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('users')
 
 for filename in os.listdir("photos_database/"):
-    user_id = str(uuid.uuid4())
+    username = filename.split(".", 1)[0]
     table.put_item(
             Item = {
-                'id': user_id,
-                'username': filename.split(".", 1)[0],
+                'username': username,
                 'balance': 100
             }
     )
@@ -30,6 +29,6 @@ for filename in os.listdir("photos_database/"):
     image = open("photos_database/" + filename, 'rb')
     image_content = image.read()
     
-    upload_photo(image_content, user_id)
+    upload_photo(image_content, username)
 
 
