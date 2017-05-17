@@ -1,9 +1,12 @@
 import boto3
+import time
 
 import tkinter as tk
 from tkinter import filedialog
 
 authentication_queue = "https://sqs.eu-west-1.amazonaws.com/628510486601/authentication_queue"
+response_queue = "https://sqs.eu-west-1.amazonaws.com/628510486601/response_queue"
+
 sqs = boto3.client('sqs')
 
 
@@ -66,7 +69,29 @@ else:
                                         'DataType': 'String'
                                     }
                                 })
+    
+    
+# wait for response
+while True:
+    response = sqs.receive_message(QueueUrl = response_queue)
+    try:
+        messages = response['Messages']
+    except KeyError:
+        time.sleep(1) # delays for 1 seconds
+        continue
+        
+    message = response['Messages'][0]
+    message_body = message['Body']
+    receipt_handle = message['ReceiptHandle']
 
+    print("********************\n" + message_body)
+
+    sqs.delete_message(
+            QueueUrl = response_queue,
+            ReceiptHandle = receipt_handle)
+
+    break
+    
 
 
 

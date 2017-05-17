@@ -1,4 +1,5 @@
 import boto3
+import time
 from botocore.exceptions import ClientError
 import sys
 
@@ -14,6 +15,9 @@ s3_folder_database = 'database/'
 
 auth_mode = "automatic"
 
+authentication_queue = "https://sqs.eu-west-1.amazonaws.com/628510486601/authentication_queue"
+client_queue = "https://sqs.eu-west-1.amazonaws.com/628510486601/response_queue"
+
 
 def get_photo(request_id) -> str:
     return s3.get_object(Bucket = bucket_name, Key = s3_folder_requests + "/" + request_id)
@@ -21,11 +25,11 @@ def get_photo(request_id) -> str:
 
 while True:
     user_recognized = None
-
-    authentication_queue = "https://sqs.eu-west-1.amazonaws.com/628510486601/authentication_queue"
+    
+    response_to_client = "Autch... some error occurred backstage..."
     
     response = sqs.receive_message(QueueUrl = authentication_queue,
-                                   MessageAttributeNames=['All'])
+                                   MessageAttributeNames = ['All'])
     
     try:
         messages = response['Messages']
@@ -39,7 +43,7 @@ while True:
     receipt_handle = message['ReceiptHandle']
     
     print("New request [id = " + message_id + "]")
-
+    
     auth_mode = message['MessageAttributes']['Mode']['StringValue']
     
     if auth_mode == "manual":
@@ -84,18 +88,22 @@ while True:
                 sys.stdout.flush()
         
         print()
-        
+    
     else:
-        print("Anonymous user has payed in cash: $" + amount)
-
+        response_to_client = "Anonymous user has payed in cash: $" + str(amount)
+        print(response_to_client)
+    
     if user_recognized is not None or auth_mode == "anonymous":
         if auth_mode == "manual" or auth_mode == "automatic":
             try:
                 user = table.get_item(Key = {'username': user_recognized})
-            
-                print("User " + user['Item']['username'] + " has been recognized! Balance: $"
-                      + str(user['Item']['balance']) + " | Debit: $"
-                      + str(amount))
+                
+                response_to_client = "Hi, " + user['Item']['username'] \
+                                     + "! Previous balance: $" \
+                                     + str(user['Item']['balance']) + " | Debit: $" + str(amount)
+                print("User " + user['Item']['username']
+                      + " has been recognized! Previous balance: $"
+                      + str(user['Item']['balance']) + " | Debit: $" + str(amount))
                 
                 user_updated = table.update_item(Key = {'username': user_recognized},
                                                  ReturnValues = 'UPDATED_NEW',
@@ -103,21 +111,32 @@ while True:
                                                  ConditionExpression = "balance >= :val",
                                                  ExpressionAttributeValues = {':val': amount}
                                                  )
-                print("User " + user['Item']['username'] + " | New balance: $" + str(user_updated['Attributes']['balance']))
+                response_to_client += "\nCurrent balance: $" \
+                                      + str(user_updated['Attributes']['balance'])
+                print("User " + user['Item']['username'] \
+                      + " | Current balance: $" \
+                      + str(user_updated['Attributes']['balance']))
             
             except ClientError as e:
                 if e.response['Error']['Code'] == "ConditionalCheckFailedException":
-                    print("User " + user['Item']['username'] + " has not enough balance.")
+                    response_to_client += "\nYou don't have enough credits."
+                    print("User " + user['Item']['username'] + " doesn't have enough credits")
                 else:
                     raise
         else:
             pass
     
     else:
-        print("No user recognized")
+        response_to_client = "User not recognized."
+        print(response_to_client)
     
     sqs.delete_message(
             QueueUrl = authentication_queue,
             ReceiptHandle = receipt_handle)
     
-    print("=======")
+    print("=======================================")
+    
+    sqs.send_message(QueueUrl = client_queue,
+                     MessageBody = response_to_client)
+    
+    time.sleep(1) # sleep for 1 seconds
